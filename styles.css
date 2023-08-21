@@ -1,0 +1,27 @@
+.panel {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: space-between; /* Esto separará los iframes a los extremos opuestos del contenedor */
+    align-items: flex-start; /* Alinea los elementos hijos en la parte superior */
+}
+
+.windy-iframe {
+    border: 1px solid #ccc;
+    margin-left: 10px;
+}
+
+.right-iframes {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Alinea los iframes a la derecha */
+}
+
+.top-right-iframe {
+    border: 1px solid #ccc;
+    margin-bottom: 10px; /* Espacio entre los iframes de la derecha */
+}
+
+.bottom-right-iframe {
+    border: 1px solid #ccc;
+}
