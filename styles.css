@@ -8,9 +8,9 @@
 
 .logo-dga {
     position: absolute;
-    top: 10px;  /* Puedes ajustar estos valores según tus necesidades */
+    top: 30px;  /* Puedes ajustar estos valores según tus necesidades */
     left: 10px;
-    width: 100px;  /* Ajusta el tamaño del logo según lo necesites */
+    width: 200px;  /* Ajusta el tamaño del logo según lo necesites */
     z-index: 10;  /* Asegura que el logo esté por encima de otros elementos */
 }
 .windy-iframe {
