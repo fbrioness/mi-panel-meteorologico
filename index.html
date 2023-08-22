@@ -10,7 +10,7 @@
     <div class="panel">
         <img src="https://dga.mop.gob.cl/common/images/dga.jpg" alt="Logo DGA" class="logo-dga">
         <!-- Iframe de Windy a la izquierda -->
-        <iframe class="windy-iframe" width="1100" height="1030" src="https://embed.windy.com/embed2.html?lat=-34&lon=-71&detailLat=-35&detailLon=-72&width=650&height=890&zoom=5&level=surface&overlay=rain&product=ecmwf&menu=&message=true&marker=&calendar=now&pressure=true&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" frameborder="0"></iframe>
+        <iframe class="windy-iframe" width="1100" height="1030" src="https://embed.windy.com/embed2.html?lat=-36.668&lon=-70.664&detailLat=-33.440&detailLon=-70.650&width=1100&height=1030&zoom=5&level=surface&overlay=rain&product=ecmwf&menu=&message=&marker=true&calendar=24&pressure=true&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" frameborder="0"></iframe>
         
         <!-- Contenedor para los iframes de la derecha -->
         <div class="right-iframes">
@@ -20,6 +20,15 @@
             <!-- Iframe inferior derecho -->
             <iframe class="bottom-right-iframe" src="https://www.meteoblue.com/es/tiempo/widget/daily/santiago-de-chile_chile_3871336?geoloc=fixed&days=7&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&precipunit=MILLIMETER&coloured=coloured&pictoicon=0&pictoicon=1&maxtemperature=0&maxtemperature=1&mintemperature=0&mintemperature=1&windspeed=0&windspeed=1&windgust=0&winddirection=0&winddirection=1&uv=0&humidity=0&precipitation=0&precipitation=1&precipitationprobability=0&precipitationprobability=1&spot=0&spot=1&pressure=0&layout=light" frameborder="0" scrolling="NO" allowtransparency="true" sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox" style="width: 820px; height: 560px"></iframe>
         </div>
-    </div>    
+    </div>
+    <script>
+        // Tiempo de actualización en milisegundos, 15 minutos serían 900000 milisegundos
+        const refreshTime = 900000; 
+    
+        setInterval(function() {
+            const iframe = document.getElementById('windy-iframe');
+            iframe.src = iframe.src;
+        }, refreshTime);
+    </script>    
 </body>
 </html>
