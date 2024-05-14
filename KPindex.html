@@ -8,7 +8,7 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <div id="planetary_k_index_container" style="width: 550px; height: 515px; margin: 0 auto;"></div>
@@ -25,7 +25,11 @@
                 const twoDaysAgo = now.clone().subtract(48, 'hours');
                 const filteredData = data.filter(item => moment(item[0]).isBetween(twoDaysAgo, now));
 
-                const categories = filteredData.map(item => moment.tz(item[0], "America/Santiago").format('MMMM-DD HH:mm'));
+                const categories = filteredData.map(item => {
+                    const start = moment.tz(item[0], "America/Santiago");
+                    const end = start.clone().add(3, 'hours');
+                    return `${start.format('MMMM-DD HH:mm')} a ${end.format('HH:mm')}`;
+                });
                 const values = filteredData.map(item => parseFloat(item[1]));
 
                 Highcharts.chart('planetary_k_index_container', {
@@ -35,17 +39,9 @@
                             load: function () {
                                 var chart = this;
                                 setTimeout(function () {
-                                    chart.exportChartLocal({
-                                        type: 'image/png',
-                                        filename: 'indice_k_planetario',
-                                        width: 550,
-                                        height: 515
-                                    }, {
-                                        chart: {
-                                            backgroundColor: '#FFFFFF'
-                                        }
-                                    }, function (response) {
-                                        $('#planetary_k_index_image').attr('src', response).show();
+                                    html2canvas(document.getElementById('planetary_k_index_container')).then(canvas => {
+                                        var imgData = canvas.toDataURL('image/png');
+                                        $('#planetary_k_index_image').attr('src', imgData).show();
                                         $('#planetary_k_index_container').hide();
                                     });
                                 }, 1000); // Espera un segundo para asegurarse de que el gráfico se renderice completamente
@@ -62,7 +58,7 @@
                             text: 'Hora Local de Chile'
                         },
                         labels: {
-                            rotation: -45
+                            rotation: -90
                         }
                     },
                     yAxis: {
