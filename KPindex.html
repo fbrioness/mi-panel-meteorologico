@@ -11,6 +11,7 @@
 </head>
 <body>
     <div id="planetary_k_index_container" style="width: 550px; height: 515px; margin: 0 auto;"></div>
+    <img id="planetary_k_index_image" style="display:none; width: 550px; height: 515px; margin: 0 auto;"/>
 
     <script>
         $(document).ready(function() {
@@ -20,27 +21,47 @@
 
                 // Filtrar los datos para obtener solo los últimos 2 días (48 horas)
                 const now = moment();
-                const twoDaysAgo = now.clone().subtract(72, 'hours');
+                const twoDaysAgo = now.clone().subtract(48, 'hours');
                 const filteredData = data.filter(item => moment(item[0]).isBetween(twoDaysAgo, now));
 
-                const categories = filteredData.map(item => moment.tz(item[0], "America/Santiago").format('DD-MMMM HH:mm'));
+                const categories = filteredData.map(item => moment.tz(item[0], "America/Santiago").format('YYYY-MM-DD HH:mm'));
                 const values = filteredData.map(item => parseFloat(item[1]));
 
                 Highcharts.chart('planetary_k_index_container', {
                     chart: {
-                        type: 'column'
+                        type: 'column',
+                        events: {
+                            load: function () {
+                                var chart = this;
+                                setTimeout(function () {
+                                    chart.exportChartLocal({
+                                        type: 'image/png',
+                                        filename: 'planetary_k_index_chart',
+                                        width: 550,
+                                        height: 515
+                                    }, {
+                                        chart: {
+                                            backgroundColor: '#FFFFFF'
+                                        }
+                                    }, function (response) {
+                                        $('#planetary_k_index_image').attr('src', response).show();
+                                        $('#planetary_k_index_container').hide();
+                                    });
+                                }, 1000); // Espera un segundo para asegurarse de que el gráfico se renderice completamente
+                            }
+                        }
                     },
                     title: {
-                        text: 'Indice KP Estimado Mundial (48 hrs)'
+                        text: 'Estimated Planetary K Index (Last 48 hours)'
                     },
                     xAxis: {
                         categories: categories,
                         crosshair: true,
                         title: {
-                            text: 'Tiempo Local Chile'
+                            text: 'Chile Local Time'
                         },
                         labels: {
-                            rotation: -90
+                            rotation: -45
                         }
                     },
                     yAxis: {
@@ -48,7 +69,7 @@
                         max: 9,
                         tickInterval: 1,
                         title: {
-                            text: 'Índice Kp'
+                            text: 'Kp index'
                         }
                     },
                     series: [{
@@ -62,7 +83,10 @@
                             if (value >= 3) return '#FFC800';
                             return '#92D050';
                         })
-                    }]
+                    }],
+                    exporting: {
+                        enabled: false // Deshabilita el botón de exportación en el gráfico
+                    }
                 });
             });
         });
