@@ -1,72 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planetary K Index Chart</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
+    <title>Meteorología</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="planetary_k_index_container" style="width: 550px; height: 515px; margin: 0 auto;"></div>
-
+    <div class="panel">
+        <img src="https://dga.mop.gob.cl/common/images/dga.jpg" alt="Logo DGA" class="logo-dga">
+        <!-- Iframe de Windy a la izquierda -->
+        <iframe id="windy-iframe" width="550" height="1030" src="https://embed.windy.com/embed2.html?lat=-40.246&lon=-72.026&detailLat=-36.440&detailLon=-70.6500&width=550&height=1030&zoom=5&level=surface&overlay=clouds&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" frameborder="0"></iframe>
+        <div class="iframe-container">
+            <iframe id="instagram-1" src="https://www.instagram.com/mop_cl/embed" width="550" height="515" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
+            <iframe id="instagram-2" src="https://www.instagram.com/subse_oopp/embed" width="550" height="515" frameborder="0" scrolling="no" allowtransparency="true"></iframe>    
+        </div>
+        <!-- Contenedor para los iframes de la derecha -->
+        <div class="right-iframes">
+            <!-- Iframe superior derecho -->
+            <iframe id="video-iframe" src="https://rudo.video/live/bbtv?volume=0&tag=eyJwcmUiOiJodHRwczovL3B1YmFkcy5nLmRvdWJsZWNsaWNrLm5ldC9nYW1wYWQvYWRzP2l1PS8xMDk4Mzg1L2Jpb2Jpb2NsL2FkX3ZpZGVvJnRmY2Q9MCZucGE9MCZzej02NDB4NDgwJmN1c3RfcGFyYW1zPXRpcG8lM0Rob21lJTI2Y2F0ZWdvcnktcHJpbWFyeSUzRHBvcnRhZGEmZ2RmcF9yZXE9MSZvdXRwdXQ9dmFzdCZ1bnZpZXdlZF9wb3NpdGlvbl9zdGFydD0xJmVudj12cCZpbXBsPXMmY29ycmVsYXRvcj0mdnBtdXRlPTAmdnBhPWNsaWNrJnZwb3M9cHJlcm9sbCIsInBvc3QiOjAsIm1pZCI6eyJ0YWciOjB9LCJvdmVyIjp7InRhZyI6MH19" width="820" height="463" allow="autoplay; fullscreen; encrypted-media" frameborder="0" allowfullscreen="" allowscriptaccess="always" scrolling="no"></iframe>
+            <!-- Iframe inferior derecho -->
+            <iframe id="meteoblue-iframe" class="bottom-right-iframe" src="https://www.meteoblue.com/es/tiempo/widget/daily/santiago-de-chile_chile_3871336?geoloc=fixed&days=7&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&precipunit=MILLIMETER&coloured=coloured&pictoicon=0&pictoicon=1&maxtemperature=0&maxtemperature=1&mintemperature=0&mintemperature=1&windspeed=0&windspeed=1&windgust=0&winddirection=0&winddirection=1&uv=0&humidity=0&precipitation=0&precipitation=1&precipitationprobability=0&precipitationprobability=1&spot=0&spot=1&pressure=0&layout=light" frameborder="0" scrolling="NO" allowtransparency="true" sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox" style="width: 820px; height: 560px"></iframe>
+        </div>
+    </div>
     <script>
-        $(document).ready(function() {
-            $.getJSON('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json', function(response) {
-                // Eliminar el encabezado de la respuesta
-                const data = response.slice(1);
+        // Tiempo de actualización en milisegundos, 1 hora serían 3600000 milisegundos
+        const refreshTime = 3600000; 
+    
+        setInterval(function() {
+            // Actualizar el iframe de Windy
+            const windyIframe = document.getElementById('windy-iframe');
+            windyIframe.src = windyIframe.src;
 
-                // Filtrar los datos para obtener solo los últimos 2 días (48 horas)
-                const now = moment();
-                const twoDaysAgo = now.clone().subtract(72, 'hours');
-                const filteredData = data.filter(item => moment(item[0]).isBetween(twoDaysAgo, now));
+            // Actualizar los iframes de Instagram
+            const instagram1Iframe = document.getElementById('instagram-1');
+            instagram1Iframe.src = instagram1Iframe.src;
 
-                const categories = filteredData.map(item => moment.tz(item[0], "America/Santiago").format('DD-MMMM HH:mm'));
-                const values = filteredData.map(item => parseFloat(item[1]));
+            const instagram2Iframe = document.getElementById('instagram-2');
+            instagram2Iframe.src = instagram2Iframe.src;
 
-                Highcharts.chart('planetary_k_index_container', {
-                    chart: {
-                        type: 'column'
-                    },
-                    title: {
-                        text: 'Indice KP Estimado Mundial (48 hrs)'
-                    },
-                    xAxis: {
-                        categories: categories,
-                        crosshair: true,
-                        title: {
-                            text: 'Tiempo Local Chile'
-                        },
-                        labels: {
-                            rotation: -90
-                        }
-                    },
-                    yAxis: {
-                        min: 0,
-                        max: 9,
-                        tickInterval: 1,
-                        title: {
-                            text: 'Índice Kp'
-                        }
-                    },
-                    series: [{
-                        name: 'Kp Index',
-                        data: values,
-                        colorByPoint: true,
-                        colors: values.map(value => {
-                            if (value >= 7) return '#C80000';
-                            if (value >= 5) return '#FF0000';
-                            if (value >= 4) return '#FF9600';
-                            if (value >= 3) return '#FFC800';
-                            return '#92D050';
-                        })
-                    }]
-                });
-            });
-        });
-    </script>
+            // Actualizar el iframe de Meteoblue
+            const meteoblueIframe = document.getElementById('meteoblue-iframe');
+            meteoblueIframe.src = meteoblueIframe.src;
+        }, refreshTime);
+    </script>    
 </body>
 </html>
-
