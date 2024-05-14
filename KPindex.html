@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planetary K Index Chart</title>
+    <title>Gráfico del Índice K Planetario</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
 </head>
 <body>
     <div id="planetary_k_index_container" style="width: 550px; height: 515px; margin: 0 auto;"></div>
@@ -24,7 +25,7 @@
                 const twoDaysAgo = now.clone().subtract(48, 'hours');
                 const filteredData = data.filter(item => moment(item[0]).isBetween(twoDaysAgo, now));
 
-                const categories = filteredData.map(item => moment.tz(item[0], "America/Santiago").format('YYYY-MM-DD HH:mm'));
+                const categories = filteredData.map(item => moment.tz(item[0], "America/Santiago").format('MMMM-DD HH:mm'));
                 const values = filteredData.map(item => parseFloat(item[1]));
 
                 Highcharts.chart('planetary_k_index_container', {
@@ -36,7 +37,7 @@
                                 setTimeout(function () {
                                     chart.exportChartLocal({
                                         type: 'image/png',
-                                        filename: 'planetary_k_index_chart',
+                                        filename: 'indice_k_planetario',
                                         width: 550,
                                         height: 515
                                     }, {
@@ -52,13 +53,13 @@
                         }
                     },
                     title: {
-                        text: 'Estimated Planetary K Index (Last 48 hours)'
+                        text: 'Índice K Planetario Estimado (Últimas 48 horas)'
                     },
                     xAxis: {
                         categories: categories,
                         crosshair: true,
                         title: {
-                            text: 'Chile Local Time'
+                            text: 'Hora Local de Chile'
                         },
                         labels: {
                             rotation: -45
@@ -69,11 +70,11 @@
                         max: 9,
                         tickInterval: 1,
                         title: {
-                            text: 'Kp index'
+                            text: 'Índice Kp'
                         }
                     },
                     series: [{
-                        name: 'Kp Index',
+                        name: 'Índice Kp',
                         data: values,
                         colorByPoint: true,
                         colors: values.map(value => {
