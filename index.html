@@ -24,6 +24,18 @@
         </div>
     </div>
     <script>
+            document.getElementById('video-iframe').addEventListener('load', function() {
+            const iframe = document.getElementById('video-iframe');
+            const iframeWindow = iframe.contentWindow;
+
+            try {
+                // Intentar manipular el iframe para ajustar el volumen
+                iframeWindow.postMessage('{"event":"command","func":"setVolume","args":[1]}', '*');
+            } catch (error) {
+                console.error('No se pudo ajustar el volumen:', error);
+            }
+        });
+        
         // Tiempo de actualización en milisegundos, 1 hora serían 3600000 milisegundos
         const refreshTime = 3600000; 
     
@@ -43,18 +55,6 @@
             const meteoblueIframe = document.getElementById('meteoblue-iframe');
             meteoblueIframe.src = meteoblueIframe.src;
         }, refreshTime);
-   
-        document.getElementById('video-iframe').addEventListener('load', function() {
-            const iframe = document.getElementById('video-iframe');
-            const iframeWindow = iframe.contentWindow;
-
-            try {
-                // Intentar manipular el iframe para ajustar el volumen
-                iframeWindow.postMessage('{"event":"command","func":"setVolume","args":[1]}', '*');
-            } catch (error) {
-                console.error('No se pudo ajustar el volumen:', error);
-            }
-        });
     </script>
 </body>
 </html>
