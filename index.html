@@ -5,102 +5,224 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meteorología</title>
     <link rel="stylesheet" href="styles.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
+
+    <style>
+        #kpindex-frame {
+            width: 550px;
+            height: 515px;
+            box-sizing: border-box;
+            overflow: hidden;
+            background: #ffffff;
+            border: 0;
+            position: relative;
+        }
+
+        #kpindex-frame canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+
+        #kpindex-error {
+            display: none;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #b00020;
+            background: #fff;
+        }
+    </style>
 </head>
 <body>
     <div class="panel">
         <img src="https://www.mop.gob.cl/archivos/2023/11/Logo_mop_reducido_rgb2023.png" alt="Logo DGA" class="logo-dga">
+
         <!-- Iframe de Windy a la izquierda -->
         <iframe id="windy-iframe" width="550" height="1030" src="https://embed.windy.com/embed2.html?lat=-40.246&lon=-72.026&detailLat=-36.440&detailLon=-70.6500&width=550&height=1030&zoom=5&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" frameborder="0"></iframe>
+
         <div class="iframe-container">
             <iframe id="instagram-1" src="https://www.instagram.com/mop_cl/embed" width="550" height="515" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
-            <iframe id="instagram-2" src="https://meteorpa.github.io/KPindex/" width="550" height="515" frameborder="0" scrolling="no" allowtransparency="true"></iframe>    
+
+            <!-- Reemplazo del iframe instagram-2 por el gráfico KP -->
+            <div id="kpindex-frame">
+                <canvas id="planetary_k_index_chart"></canvas>
+                <div id="kpindex-error">No fue posible cargar el gráfico del índice Kp.</div>
+            </div>
         </div>
+
         <!-- Contenedor para los iframes de la derecha -->
         <div class="right-iframes">
             <!-- Iframe superior derecho -->
             <iframe id="video-iframe" src="https://www.youtube.com/embed/mW0wHg6P4FI?si=nFe7M_7MA_xxXjLt" width="820" height="463" allow="" fullscreen encrypted-media" allowfullscreen="" allowscriptaccess="always" scrolling="no"></iframe>
+
             <!-- Iframe inferior derecho -->
             <iframe id="meteoblue-iframe" class="bottom-right-iframe" src="https://www.meteoblue.com/es/tiempo/widget/daily/santiago-de-chile_chile_3871336?geoloc=fixed&days=7&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&precipunit=MILLIMETER&coloured=coloured&pictoicon=0&pictoicon=1&maxtemperature=0&maxtemperature=1&mintemperature=0&mintemperature=1&windspeed=0&windspeed=1&windgust=0&winddirection=0&winddirection=1&uv=0&humidity=0&precipitation=0&precipitation=1&precipitationprobability=0&precipitationprobability=1&spot=0&spot=1&pressure=0&layout=light" frameborder="0" scrolling="NO" allowtransparency="true" sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox" style="width: 820px; height: 560px"></iframe>
         </div>
     </div>
+
     <script>
-            document.getElementById('video-iframe').addEventListener('load', function() {
+        let kpChart = null;
+
+        function getKpColor(value) {
+            if (value >= 7) return '#C80000';
+            if (value >= 5) return '#FF0000';
+            if (value >= 4) return '#FF9600';
+            if (value >= 3) return '#FFC800';
+            return '#92D050';
+        }
+
+        function loadKpChart() {
+            $.getJSON('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json')
+                .done(function(response) {
+                    console.log('Respuesta NOAA:', response);
+
+                    if (!Array.isArray(response) || response.length === 0) {
+                        throw new Error('La respuesta NOAA está vacía o no es válida.');
+                    }
+
+                    const data = response.filter(item =>
+                        item &&
+                        item.time_tag &&
+                        item.Kp !== undefined &&
+                        !isNaN(parseFloat(item.Kp))
+                    );
+
+                    if (data.length === 0) {
+                        throw new Error('No hay datos válidos para graficar.');
+                    }
+
+                    // Últimos 16 registros = 48 horas aprox. en intervalos de 3 horas
+                    const filteredData = data.slice(-16);
+
+                    const labels = filteredData.map(item => {
+                        const start = moment.utc(item.time_tag).tz("America/Santiago");
+                        const end = start.clone().add(3, 'hours');
+                        return `${start.format('DD/MM HH:mm')} a ${end.format('HH:mm')}`;
+                    });
+
+                    const values = filteredData.map(item => parseFloat(item.Kp));
+
+                    console.log('Datos filtrados:', filteredData);
+                    console.log('Labels:', labels);
+                    console.log('Values:', values);
+
+                    const ctx = document.getElementById('planetary_k_index_chart').getContext('2d');
+                    document.getElementById('kpindex-error').style.display = 'none';
+
+                    if (kpChart) {
+                        kpChart.destroy();
+                    }
+
+                    kpChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Índice Kp',
+                                data: values,
+                                backgroundColor: values.map(getKpColor),
+                                borderColor: '#666666',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            layout: {
+                                padding: {
+                                    top: 10,
+                                    right: 10,
+                                    bottom: 10,
+                                    left: 10
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 9,
+                                    ticks: {
+                                        stepSize: 1
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Índice Kp'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        autoSkip: true,
+                                        maxRotation: 90,
+                                        minRotation: 45,
+                                        font: {
+                                            size: 10
+                                        }
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Hora Local de Chile'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Índice K Planetario Estimado (Últimas 48 horas)'
+                                }
+                            }
+                        }
+                    });
+                })
+                .fail(function(jqxhr, textStatus, error) {
+                    console.error('Error cargando JSON NOAA:', textStatus, error);
+                    document.getElementById('kpindex-error').style.display = 'block';
+                });
+        }
+
+        document.getElementById('video-iframe').addEventListener('load', function() {
             const iframe = document.getElementById('video-iframe');
             const iframeWindow = iframe.contentWindow;
 
             try {
-                // Intentar manipular el iframe para ajustar el volumen
                 iframeWindow.postMessage('{"event":"command","func":"setVolume","args":[1]}', '*');
             } catch (error) {
                 console.error('No se pudo ajustar el volumen:', error);
             }
         });
-        
-        // Tiempo de actualización en milisegundos, 1 hora serían 3600000 milisegundos
-        const refreshTime = 3600000; 
-    
+
+        // Cargar gráfico al iniciar
+        loadKpChart();
+
+        // Tiempo de actualización en milisegundos
+        const refreshTime = 3600000;
+
         setInterval(function() {
-            // Actualizar el iframe de Windy
+            // Actualizar iframe de Windy
             const windyIframe = document.getElementById('windy-iframe');
             windyIframe.src = windyIframe.src;
 
-            // Actualizar los iframes de Instagram
+            // Actualizar iframe de Instagram
             const instagram1Iframe = document.getElementById('instagram-1');
             instagram1Iframe.src = instagram1Iframe.src;
 
-            const instagram2Iframe = document.getElementById('instagram-2');
-            instagram2Iframe.src = instagram2Iframe.src;
+            // Actualizar gráfico KP
+            loadKpChart();
 
-            // Actualizar el iframe de Meteoblue
+            // Actualizar iframe de Meteoblue
             const meteoblueIframe = document.getElementById('meteoblue-iframe');
             meteoblueIframe.src = meteoblueIframe.src;
         }, refreshTime);
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
