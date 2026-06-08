@@ -13,7 +13,7 @@
 
     <style>
         /* ==============================
-           TABLA MUNDIAL DESDE API MARCA
+           TABLA MUNDIAL DESDE PROXY PHP
         ============================== */
 
         #mundial-api-widget {
@@ -200,7 +200,7 @@
 
         <div class="iframe-container">
 
-            <!-- Reemplazo de Instagram / MARCA iframe por tabla desde API -->
+            <!-- Tabla de posiciones Mundial 2026 desde marca-proxy.php -->
             <div id="mundial-api-widget">
                 <div id="mundial-api-title">Fase de grupos - Mundial 2026</div>
 
@@ -209,6 +209,8 @@
 
                     <div id="mundial-api-error">
                         No fue posible cargar la tabla de posiciones del Mundial.
+                        <br>
+                        Revisa que <strong>marca-proxy.php</strong> esté en la misma carpeta que este HTML.
                     </div>
 
                     <div id="mundial-api-table-container">
@@ -278,7 +280,7 @@
 
     <script>
         /* ==============================
-           TABLA MUNDIAL DESDE API MARCA
+           TABLA MUNDIAL DESDE PROXY PHP
         ============================== */
 
         const mundialGrupos = [
@@ -298,13 +300,16 @@
 
         let mundialGrupoActual = 0;
 
-        // Tiempo de rotación entre grupos.
-        // 60000 = 1 minuto.
+        // Tabla: cambiar de grupo cada 1 minuto.
         const tiempoRotacionMundial = 60000;
 
-       function getMundialApiUrl(groupId) {
-    return `marca-proxy.php?group=${groupId}`;
-}
+        // Windy, Meteoblue y KP: actualizar cada 3 horas.
+        const tiempoActualizacionGeneral = 10800000;
+
+        function getMundialApiUrl(groupId) {
+            // Debe estar en la misma carpeta que este HTML.
+            return `marca-proxy.php?group=${groupId}`;
+        }
 
         function mostrarEstadoMundial(estado) {
             const loading = document.getElementById('mundial-api-loading');
@@ -359,7 +364,7 @@
             try {
                 const response = await fetch(url, {
                     method: 'GET',
-                    cache: 'no-store'
+                    cache: 'default'
                 });
 
                 if (!response.ok) {
@@ -380,6 +385,7 @@
 
                 const classification = json.data[0];
                 const head = classification.classificationHead || {};
+
                 const apiGroupName =
                     head.group?.alternateNames?.esES ||
                     head.group?.name ||
@@ -410,23 +416,65 @@
 
                     const tr = document.createElement('tr');
 
-                    tr.innerHTML = `
-                        <td class="col-pos">${standing.position || '-'}</td>
-                        <td class="col-team">
-                            <div class="mundial-team">
-                                ${flag ? `<img src="${flag}" alt="${team.name || ''}">` : ''}
-                                <span class="mundial-team-name">${team.name || team.fullName || '-'}</span>
-                            </div>
-                        </td>
-                        <td class="mundial-points">${standing.points || '0'}</td>
-                        <td>${standing.played || '0'}</td>
-                        <td>${standing.won || '0'}</td>
-                        <td>${standing.drawn || '0'}</td>
-                        <td>${standing.lost || '0'}</td>
-                        <td>${standing.for || '0'}</td>
-                        <td>${standing.against || '0'}</td>
-                        <td>${standing.difference || '0'}</td>
-                    `;
+                    const tdPos = document.createElement('td');
+                    tdPos.className = 'col-pos';
+                    tdPos.textContent = standing.position || '-';
+
+                    const tdTeam = document.createElement('td');
+                    tdTeam.className = 'col-team';
+
+                    const teamDiv = document.createElement('div');
+                    teamDiv.className = 'mundial-team';
+
+                    if (flag) {
+                        const img = document.createElement('img');
+                        img.src = flag;
+                        img.alt = team.name || team.fullName || '';
+                        teamDiv.appendChild(img);
+                    }
+
+                    const teamName = document.createElement('span');
+                    teamName.className = 'mundial-team-name';
+                    teamName.textContent = team.name || team.fullName || '-';
+                    teamDiv.appendChild(teamName);
+
+                    tdTeam.appendChild(teamDiv);
+
+                    const tdPts = document.createElement('td');
+                    tdPts.className = 'mundial-points';
+                    tdPts.textContent = standing.points || '0';
+
+                    const tdPj = document.createElement('td');
+                    tdPj.textContent = standing.played || '0';
+
+                    const tdG = document.createElement('td');
+                    tdG.textContent = standing.won || '0';
+
+                    const tdE = document.createElement('td');
+                    tdE.textContent = standing.drawn || '0';
+
+                    const tdP = document.createElement('td');
+                    tdP.textContent = standing.lost || '0';
+
+                    const tdGf = document.createElement('td');
+                    tdGf.textContent = standing.for || '0';
+
+                    const tdGc = document.createElement('td');
+                    tdGc.textContent = standing.against || '0';
+
+                    const tdDg = document.createElement('td');
+                    tdDg.textContent = standing.difference || '0';
+
+                    tr.appendChild(tdPos);
+                    tr.appendChild(tdTeam);
+                    tr.appendChild(tdPts);
+                    tr.appendChild(tdPj);
+                    tr.appendChild(tdG);
+                    tr.appendChild(tdE);
+                    tr.appendChild(tdP);
+                    tr.appendChild(tdGf);
+                    tr.appendChild(tdGc);
+                    tr.appendChild(tdDg);
 
                     tbody.appendChild(tr);
                 });
@@ -494,9 +542,7 @@
 
                     const values = filteredData.map(item => parseFloat(item.Kp));
 
-                    console.log('Datos filtrados:', filteredData);
-                    console.log('Labels:', labels);
-                    console.log('Values:', values);
+                    console.log('Datos KP filtrados:', filteredData);
 
                     const ctx = document.getElementById('planetary_k_index_chart').getContext('2d');
                     document.getElementById('kpindex-error').style.display = 'none';
@@ -575,25 +621,48 @@
         }
 
         /* ==============================
+           ACTUALIZACIÓN DE IFRAMES
+        ============================== */
+
+        function recargarIframe(id) {
+            const iframe = document.getElementById(id);
+
+            if (!iframe || !iframe.src) {
+                return;
+            }
+
+            iframe.src = iframe.src;
+        }
+
+        function actualizarPanelCadaTresHoras() {
+            // KP se actualiza primero.
+            loadKpChart();
+
+            // Windy y Meteoblue se recargan de forma diferida para no saturar el navegador.
+            setTimeout(function() {
+                recargarIframe('windy-iframe');
+            }, 10000);
+
+            setTimeout(function() {
+                recargarIframe('meteoblue-iframe');
+            }, 30000);
+        }
+
+        /* ==============================
            INICIO
         ============================== */
 
-        // Cargar tabla del Mundial al iniciar
+        // Cargar tabla del Mundial al iniciar.
         cargarTablaMundial();
 
-        // Rotar grupos cada 1 minuto sin tocar YouTube
+        // Cambiar de grupo cada 1 minuto.
         setInterval(rotarTablaMundial, tiempoRotacionMundial);
 
-        // Cargar gráfico KP al iniciar
+        // Cargar gráfico KP al iniciar.
         loadKpChart();
 
-        // Actualizar solo el gráfico KP cada 1 hora.
-        // No se recarga YouTube, Windy ni Meteoblue.
-        const refreshTime = 3600000;
-
-        setInterval(function() {
-            loadKpChart();
-        }, refreshTime);
+        // Actualizar Windy, Meteoblue y KP cada 3 horas.
+        setInterval(actualizarPanelCadaTresHoras, tiempoActualizacionGeneral);
     </script>
 </body>
 </html>
