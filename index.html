@@ -7,7 +7,7 @@
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Meteorológico</title>
-    <link rel="stylesheet" href="styles.css?v=20260608-30">
+    <link rel="stylesheet" href="styles.css?v=20260608-iframe-01">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,7 +15,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
 
     <style>
-
 * { box-sizing: border-box; }
 
 html, body {
@@ -48,230 +47,13 @@ html, body {
     z-index: 50;
 }
 
-/* ==============================
-   COLUMNA IZQUIERDA: TABLA PARTIDOS
-============================== */
-
-.worldcup-column {
+.fixtures-frame {
     width: 550px;
     height: 1030px;
-    padding: 10px;
-    background: linear-gradient(180deg, #e8edf2 0%, #dfe6ec 100%);
-    overflow: hidden;
+    border: 0;
     display: block;
+    background: #e8edf2;
 }
-
-#worldcup-fixture-widget {
-    width: 100%;
-    height: 100%;
-    border-radius: 18px;
-    background: #f4f7fa;
-    box-shadow: 0 0 0 1px rgba(20,31,43,0.12), 0 12px 26px rgba(20,31,43,0.18);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-.fixture-topbar {
-    height: 92px;
-    padding: 16px 18px;
-    background: linear-gradient(135deg, #171d24 0%, #2b3540 100%);
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    flex: 0 0 auto;
-}
-
-.fixture-title {
-    font-size: 25px;
-    line-height: 28px;
-    font-weight: 900;
-    letter-spacing: -0.3px;
-}
-
-.fixture-subtitle {
-    margin-top: 4px;
-    font-size: 14px;
-    color: #c9d1d8;
-    font-weight: 700;
-}
-
-.fixture-counter {
-    flex: 0 0 auto;
-    padding: 9px 13px;
-    border-radius: 999px;
-    background: #03a9f4;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    box-shadow: 0 4px 10px rgba(3,169,244,0.25);
-}
-
-.fixture-tabs {
-    height: 52px;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    gap: 8px;
-    background: #ffffff;
-    border-bottom: 1px solid #dce3e8;
-    flex: 0 0 auto;
-}
-
-.fixture-tab {
-    height: 34px;
-    min-width: 92px;
-    padding: 0 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    background: #edf2f5;
-    color: #5f6a72;
-    font-size: 13px;
-    font-weight: 900;
-}
-
-.fixture-tab.active {
-    background: #03a9f4;
-    color: #ffffff;
-}
-
-#fixture-scroll {
-    flex: 1 1 auto;
-    padding: 12px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-    background: #f3f6f8;
-}
-
-#fixture-scroll::-webkit-scrollbar {
-    width: 8px;
-}
-
-#fixture-scroll::-webkit-scrollbar-track {
-    background: #edf1f4;
-}
-
-#fixture-scroll::-webkit-scrollbar-thumb {
-    background: #b5c0c8;
-    border-radius: 999px;
-}
-
-.fixture-group {
-    margin-bottom: 14px;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #ffffff;
-    border: 1px solid #d9e1e7;
-    box-shadow: 0 5px 14px rgba(20,31,43,0.08);
-}
-
-.fixture-group-header {
-    min-height: 43px;
-    padding: 0 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    background: linear-gradient(180deg, #edf3f7 0%, #e3ebf1 100%);
-    color: #20282e;
-    font-size: 14px;
-    font-weight: 900;
-}
-
-.fixture-group-header strong {
-    flex: 0 0 auto;
-    color: #69747c;
-    font-size: 13px;
-    font-weight: 900;
-}
-
-.game-card {
-    min-height: 74px;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr);
-    align-items: center;
-    padding: 0 12px;
-    background: #ffffff;
-    border-top: 1px solid #edf1f4;
-}
-
-.game-card:nth-child(odd) {
-    background: #fbfcfd;
-}
-
-.team {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    color: #1f252b;
-    font-size: 15px;
-    line-height: 18px;
-    font-weight: 900;
-}
-
-.team-home {
-    justify-content: flex-end;
-    text-align: right;
-}
-
-.team-away {
-    justify-content: flex-start;
-    text-align: left;
-}
-
-.team-name {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.team-badge {
-    width: 34px;
-    height: 34px;
-    flex: 0 0 34px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(circle at 30% 25%, #ffffff 0%, #d9e8f1 45%, #9fb6c5 100%);
-    border: 2px solid #ffffff;
-    box-shadow: 0 2px 6px rgba(20,31,43,0.22);
-    color: #25313b;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.2px;
-}
-
-.match-time {
-    height: 40px;
-    min-width: 66px;
-    margin: 0 auto;
-    padding: 0 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 13px;
-    background: #1f252b;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 900;
-    letter-spacing: 0.2px;
-    box-shadow: 0 3px 8px rgba(20,31,43,0.22);
-}
-
-/* ==============================
-   COLUMNA CENTRAL: INSTAGRAM + KP
-============================== */
 
 .iframe-container {
     width: 550px;
@@ -318,10 +100,6 @@ html, body {
     background: #ffffff;
 }
 
-/* ==============================
-   COLUMNA DERECHA: YOUTUBE + METEOBLUE
-============================== */
-
 .right-iframes {
     width: 820px;
     height: 1030px;
@@ -346,34 +124,23 @@ html, body {
     border: 0;
     background: #ffffff;
 }
-
-    </style>
+</style>
 </head>
 <body>
     <div class="panel">
         <img src="https://dga.cerofilas.gob.cl/logos/dga.jpg" alt="Logo DGA" class="logo-dga">
 
-        <!-- COLUMNA IZQUIERDA: Tabla de partidos en lugar de Windy -->
-        <section class="worldcup-column">
-            <div id="worldcup-fixture-widget">
-                <div class="fixture-topbar">
-                    <div>
-                        <div class="fixture-title">Mundial 2026</div>
-                        <div class="fixture-subtitle">Fase de grupos · Calendario completo</div>
-                    </div>
-                    <div class="fixture-counter">72 partidos</div>
-                </div>
-                <div class="fixture-tabs">
-                    <span class="fixture-tab active">Todos</span>
-                    <span class="fixture-tab">Fecha 1</span>
-                    <span class="fixture-tab">Fecha 2</span>
-                    <span class="fixture-tab">Fecha 3</span>
-                </div>
-                <div class="fixture-scroll" id="fixture-scroll"></div>
-            </div>
-        </section>
+        <!-- Iframe local liviano para tabla de partidos -->
+        <iframe
+            id="fixtures-iframe"
+            class="fixtures-frame"
+            src="fixtures.html?v=20260608-iframe-01"
+            width="550"
+            height="1030"
+            frameborder="0"
+            scrolling="no">
+        </iframe>
 
-        <!-- COLUMNA CENTRAL: Instagram + KP, como estaba originalmente -->
         <div class="iframe-container">
             <iframe
                 id="instagram-1"
@@ -391,13 +158,13 @@ html, body {
             </div>
         </div>
 
-        <!-- COLUMNA DERECHA: YouTube + Meteoblue -->
         <div class="right-iframes">
             <iframe
                 id="video-iframe"
                 src="https://www.youtube.com/embed/sJWlqkxaXfM?si=-jB9FKIZY5FAyBAH"
                 width="820"
                 height="463"
+                frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen
                 scrolling="no">
@@ -417,74 +184,6 @@ html, body {
     </div>
 
     <script>
-
-        const matches = [
-            { group: 'Grupo A · Fecha 1', date: '11/06/2026', games: [['México','MÉX','15:00','Sudáfrica','SUD'], ['Corea del Sur','CDS','22:00','República Checa','CHE']] },
-            { group: 'Grupo B · Fecha 1', date: '12/06/2026', games: [['Canadá','CAN','15:00','Bosnia Herz.','BH']] },
-            { group: 'Grupo D · Fecha 1', date: '12/06/2026', games: [['Estados Unidos','USA','21:00','Paraguay','PAR']] },
-            { group: 'Grupo B · Fecha 1', date: '13/06/2026', games: [['Qatar','QAT','15:00','Suiza','SUI']] },
-            { group: 'Grupo C · Fecha 1', date: '13/06/2026', games: [['Brasil','BRA','18:00','Marruecos','MAR'], ['Haití','HAI','21:00','Escocia','ESC']] },
-            { group: 'Grupo D · Fecha 1', date: '14/06/2026', games: [['Australia','AUS','00:00','Turquía','TUR']] },
-            { group: 'Grupo E · Fecha 1', date: '14/06/2026', games: [['Alemania','ALE','13:00','Curazao','CUR'], ['Costa de Marfil','CM','19:00','Ecuador','ECU']] },
-            { group: 'Grupo F · Fecha 1', date: '14/06/2026', games: [['Países Bajos','PB','16:00','Japón','JAP'], ['Túnez','TUN','22:00','Suecia','SUE']] },
-            { group: 'Grupo H · Fecha 1', date: '15/06/2026', games: [['España','ESP','12:00','Cabo Verde','CV'], ['Arabia Saudita','AS','18:00','Uruguay','URU']] },
-            { group: 'Grupo G · Fecha 1', date: '15/06/2026', games: [['Bélgica','BEL','15:00','Egipto','EGI'], ['Irán','IRN','21:00','Nueva Zelanda','NZ']] },
-            { group: 'Grupo I · Fecha 1', date: '16/06/2026', games: [['Francia','FRA','15:00','Senegal','SEN'], ['Irak','IRK','18:00','Noruega','NOR'], ['Argentina','ARG','21:00','Argelia','ALG']] },
-            { group: 'Grupo J/K/L · Fecha 1', date: '17/06/2026', games: [['Austria','AUT','00:00','Jordania','JOR'], ['Portugal','POR','13:00','RD Congo','RDC'], ['Inglaterra','ING','16:00','Croacia','CRO'], ['Ghana','GHA','19:00','Panamá','PAN'], ['Uzbekistán','UZB','22:00','Colombia','COL']] },
-
-            { group: 'Grupo A/B · Fecha 2', date: '18/06/2026', games: [['República Checa','CHE','12:00','Sudáfrica','SUD'], ['Suiza','SUI','15:00','Bosnia Herz.','BH'], ['Canadá','CAN','18:00','Qatar','QAT'], ['México','MÉX','21:00','Corea del Sur','CDS']] },
-            { group: 'Grupo C/D · Fecha 2', date: '19/06/2026', games: [['Estados Unidos','USA','15:00','Australia','AUS'], ['Escocia','ESC','15:00','Marruecos','MAR'], ['Brasil','BRA','21:00','Haití','HAI']] },
-            { group: 'Grupo D/E/F · Fecha 2', date: '20/06/2026', games: [['Turquía','TUR','00:00','Paraguay','PAR'], ['Países Bajos','PB','13:00','Suecia','SUE'], ['Alemania','ALE','16:00','Costa de Marfil','CM'], ['Ecuador','ECU','20:00','Curazao','CUR']] },
-            { group: 'Grupo F/G/H · Fecha 2', date: '21/06/2026', games: [['Túnez','TUN','00:00','Japón','JAP'], ['España','ESP','12:00','Arabia Saudita','AS'], ['Bélgica','BEL','15:00','Irán','IRN'], ['Uruguay','URU','18:00','Cabo Verde','CV'], ['Nueva Zelanda','NZ','21:00','Egipto','EGI']] },
-            { group: 'Grupo I/J · Fecha 2', date: '22/06/2026', games: [['Argentina','ARG','13:00','Austria','AUT'], ['Francia','FRA','17:00','Irak','IRK'], ['Noruega','NOR','20:00','Senegal','SEN'], ['Jordania','JOR','23:00','Argelia','ALG']] },
-            { group: 'Grupo K/L · Fecha 2', date: '23/06/2026', games: [['Portugal','POR','13:00','Uzbekistán','UZB'], ['Inglaterra','ING','16:00','Ghana','GHA'], ['Panamá','PAN','19:00','Croacia','CRO'], ['Colombia','COL','22:00','RD Congo','RDC']] },
-
-            { group: 'Grupo A/B/C · Fecha 3', date: '24/06/2026', games: [['Suiza','SUI','15:00','Canadá','CAN'], ['Bosnia Herz.','BH','15:00','Qatar','QAT'], ['Brasil','BRA','18:00','Escocia','ESC'], ['Marruecos','MAR','18:00','Haití','HAI'], ['México','MÉX','21:00','República Checa','CHE'], ['Corea del Sur','CDS','21:00','Sudáfrica','SUD']] },
-            { group: 'Grupo D/E/F · Fecha 3', date: '25/06/2026', games: [['Ecuador','ECU','16:00','Alemania','ALE'], ['Curazao','CUR','16:00','Costa de Marfil','CM'], ['Túnez','TUN','19:00','Países Bajos','PB'], ['Japón','JAP','19:00','Suecia','SUE'], ['Estados Unidos','USA','22:00','Turquía','TUR'], ['Paraguay','PAR','22:00','Australia','AUS']] },
-            { group: 'Grupo G/H/I · Fecha 3', date: '26/06/2026', games: [['Noruega','NOR','15:00','Francia','FRA'], ['Senegal','SEN','15:00','Irak','IRK'], ['Uruguay','URU','20:00','España','ESP'], ['Cabo Verde','CV','20:00','Arabia Saudita','AS'], ['Nueva Zelanda','NZ','23:00','Bélgica','BEL'], ['Egipto','EGI','23:00','Irán','IRN']] },
-            { group: 'Grupo J/K/L · Fecha 3', date: '27/06/2026', games: [['Panamá','PAN','17:00','Inglaterra','ING'], ['Croacia','CRO','17:00','Ghana','GHA'], ['Colombia','COL','19:30','Portugal','POR'], ['RD Congo','RDC','19:30','Uzbekistán','UZB'], ['Argentina','ARG','22:00','Jordania','JOR'], ['Argelia','ALG','22:00','Austria','AUT']] }
-        ];
-
-
-        function renderFixtures() {
-            const container = document.getElementById('fixture-scroll');
-            container.innerHTML = matches.map(section => `
-                <div class="fixture-group">
-                    <div class="fixture-group-header">
-                        <span>${section.group}</span>
-                        <strong>${section.date}</strong>
-                    </div>
-                    ${section.games.map(game => `
-                        <div class="game-card">
-                            <div class="team team-home">
-                                <span class="team-name">${game[0]}</span>
-                                <span class="team-badge">${game[1]}</span>
-                            </div>
-                            <div class="match-time">${game[2]}</div>
-                            <div class="team team-away">
-                                <span class="team-badge">${game[4]}</span>
-                                <span class="team-name">${game[3]}</span>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `).join('');
-        }
-
-        function scrollWorldCupWidget() {
-            const el = document.getElementById('fixture-scroll');
-            if (!el) return;
-
-            const maxScroll = el.scrollHeight - el.clientHeight;
-            if (maxScroll <= 0) return;
-
-            if (el.scrollTop + 520 >= maxScroll) {
-                el.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                el.scrollBy({ top: 520, behavior: 'smooth' });
-            }
-        }
-
         let kpChart = null;
 
         function getKpColor(value) {
@@ -558,33 +257,21 @@ html, body {
                                 y: {
                                     beginAtZero: true,
                                     max: 9,
-                                    ticks: {
-                                        stepSize: 1
-                                    },
-                                    title: {
-                                        display: true,
-                                        text: 'Índice Kp'
-                                    }
+                                    ticks: { stepSize: 1 },
+                                    title: { display: true, text: 'Índice Kp' }
                                 },
                                 x: {
                                     ticks: {
                                         autoSkip: true,
                                         maxRotation: 90,
                                         minRotation: 45,
-                                        font: {
-                                            size: 10
-                                        }
+                                        font: { size: 10 }
                                     },
-                                    title: {
-                                        display: true,
-                                        text: 'Hora Local de Chile'
-                                    }
+                                    title: { display: true, text: 'Hora Local de Chile' }
                                 }
                             },
                             plugins: {
-                                legend: {
-                                    display: true
-                                },
+                                legend: { display: true },
                                 title: {
                                     display: true,
                                     text: 'Índice K Planetario Estimado (Últimas 48 horas)'
@@ -605,7 +292,6 @@ html, body {
         }
 
         function actualizarPanelCadaTresHoras() {
-            // Ya no se recarga Windy porque fue retirado del panel.
             loadKpChart();
 
             setTimeout(function() {
@@ -616,16 +302,12 @@ html, body {
                 recargarIframe('meteoblue-iframe');
             }, 30000);
 
-            // No se recarga YouTube.
+            // No recargar YouTube.
+            // No recargar fixtures.html.
         }
 
-        renderFixtures();
         loadKpChart();
 
-        // Scroll discreto: baja una pantalla cada 1 minuto.
-        setInterval(scrollWorldCupWidget, 60000);
-
-        // Instagram, Meteoblue y KP cada 3 horas.
         const tiempoActualizacionGeneral = 10800000;
         setInterval(actualizarPanelCadaTresHoras, tiempoActualizacionGeneral);
     </script>
