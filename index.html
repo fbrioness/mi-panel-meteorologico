@@ -12,7 +12,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
 
     <style>
-        #marca-grupos-widget {
+        /* ==============================
+           TABLA MUNDIAL DESDE API MARCA
+        ============================== */
+
+        #mundial-api-widget {
             width: 550px;
             height: 515px;
             box-sizing: border-box;
@@ -23,7 +27,7 @@
             font-family: Arial, sans-serif;
         }
 
-        #marca-grupos-title {
+        #mundial-api-title {
             height: 42px;
             line-height: 42px;
             box-sizing: border-box;
@@ -38,25 +42,118 @@
             text-overflow: ellipsis;
         }
 
-        #marca-grupos-viewport {
-            position: relative;
+        #mundial-api-content {
             width: 550px;
             height: 473px;
+            box-sizing: border-box;
+            padding: 12px;
             overflow: hidden;
             background: #ffffff;
         }
 
-        #marca-grupos-frame {
-            position: absolute;
-            top: -185px;
-            left: 0;
-            width: 900px;
-            height: 1300px;
-            border: 0;
-            transform: scale(0.61);
-            transform-origin: top left;
-            background: #ffffff;
+        .mundial-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #555555;
         }
+
+        .mundial-meta span {
+            display: block;
+        }
+
+        .mundial-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            table-layout: fixed;
+        }
+
+        .mundial-table thead {
+            background: #eeeeee;
+        }
+
+        .mundial-table th,
+        .mundial-table td {
+            padding: 7px 4px;
+            border-bottom: 1px solid #dddddd;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .mundial-table th {
+            font-size: 11px;
+            color: #333333;
+            font-weight: bold;
+        }
+
+        .mundial-table td {
+            color: #111111;
+        }
+
+        .mundial-table .col-pos {
+            width: 28px;
+            font-weight: bold;
+        }
+
+        .mundial-table .col-team {
+            width: 210px;
+            text-align: left;
+        }
+
+        .mundial-team {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            min-width: 0;
+        }
+
+        .mundial-team img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .mundial-team-name {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-weight: bold;
+        }
+
+        .mundial-points {
+            font-weight: bold;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        #mundial-api-error {
+            display: none;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 20px;
+            font-size: 15px;
+            line-height: 22px;
+            color: #b00020;
+            background: #fff5f5;
+            border: 1px solid #f0cccc;
+        }
+
+        #mundial-api-loading {
+            display: none;
+            padding: 20px;
+            font-size: 15px;
+            text-align: center;
+            color: #555555;
+        }
+
+        /* ==============================
+           GRÁFICO KP
+        ============================== */
 
         #kpindex-frame {
             width: 550px;
@@ -103,18 +200,43 @@
 
         <div class="iframe-container">
 
-            <!-- Reemplazo de Instagram por iframe de MARCA -->
-            <div id="marca-grupos-widget">
-                <div id="marca-grupos-title">Fase de grupos - Grupo H</div>
+            <!-- Reemplazo de Instagram / MARCA iframe por tabla desde API -->
+            <div id="mundial-api-widget">
+                <div id="mundial-api-title">Fase de grupos - Mundial 2026</div>
 
-                <div id="marca-grupos-viewport">
-                    <iframe
-                        id="marca-grupos-frame"
-                        title="Fase de grupos Mundial 2026 - MARCA"
-                        loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade"
-                        scrolling="no">
-                    </iframe>
+                <div id="mundial-api-content">
+                    <div id="mundial-api-loading">Cargando tabla de posiciones...</div>
+
+                    <div id="mundial-api-error">
+                        No fue posible cargar la tabla de posiciones del Mundial.
+                    </div>
+
+                    <div id="mundial-api-table-container">
+                        <div class="mundial-meta">
+                            <span id="mundial-group-name">Grupo</span>
+                            <span id="mundial-last-update">Actualizando...</span>
+                        </div>
+
+                        <table class="mundial-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-pos">#</th>
+                                    <th class="col-team">Equipo</th>
+                                    <th>PTS</th>
+                                    <th>PJ</th>
+                                    <th>G</th>
+                                    <th>E</th>
+                                    <th>P</th>
+                                    <th>GF</th>
+                                    <th>GC</th>
+                                    <th>DG</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mundial-table-body">
+                                <!-- Datos cargados por JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -155,18 +277,183 @@
     </div>
 
     <script>
-        let kpChart = null;
+        /* ==============================
+           TABLA MUNDIAL DESDE API MARCA
+        ============================== */
 
-        function cargarMarcaGrupo() {
-            const marcaFrame = document.getElementById('marca-grupos-frame');
+        const mundialGrupos = [
+            { id: 1, nombre: "Grupo A" },
+            { id: 2, nombre: "Grupo B" },
+            { id: 3, nombre: "Grupo C" },
+            { id: 4, nombre: "Grupo D" },
+            { id: 5, nombre: "Grupo E" },
+            { id: 6, nombre: "Grupo F" },
+            { id: 7, nombre: "Grupo G" },
+            { id: 8, nombre: "Grupo H" },
+            { id: 9, nombre: "Grupo I" },
+            { id: 10, nombre: "Grupo J" },
+            { id: 11, nombre: "Grupo K" },
+            { id: 12, nombre: "Grupo L" }
+        ];
 
-            const marcaUrl = 'https://www.marca.com/futbol/mundial/calendario/grupo-h.html?intcmp=MENUMIGA&s_kw=fase-de-grupos';
+        let mundialGrupoActual = 0;
 
-            if (marcaFrame.dataset.currentUrl !== marcaUrl) {
-                marcaFrame.dataset.currentUrl = marcaUrl;
-                marcaFrame.src = marcaUrl;
+        // Tiempo de rotación entre grupos.
+        // 60000 = 1 minuto.
+        const tiempoRotacionMundial = 60000;
+
+        function getMundialApiUrl(groupId) {
+            return `https://api.unidadeditorial.es/sports/v1/classifications/current/?site=2&type=10&tournament=0117&group=${groupId}&season=2025`;
+        }
+
+        function mostrarEstadoMundial(estado) {
+            const loading = document.getElementById('mundial-api-loading');
+            const error = document.getElementById('mundial-api-error');
+            const tableContainer = document.getElementById('mundial-api-table-container');
+
+            if (estado === 'loading') {
+                loading.style.display = 'block';
+                error.style.display = 'none';
+                tableContainer.style.display = 'none';
+            }
+
+            if (estado === 'error') {
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                tableContainer.style.display = 'none';
+            }
+
+            if (estado === 'ok') {
+                loading.style.display = 'none';
+                error.style.display = 'none';
+                tableContainer.style.display = 'block';
             }
         }
+
+        function formatearFechaChile(fechaIso) {
+            if (!fechaIso) return '';
+
+            try {
+                return moment.utc(fechaIso)
+                    .tz("America/Santiago")
+                    .format("DD/MM/YYYY HH:mm");
+            } catch (error) {
+                return '';
+            }
+        }
+
+        async function cargarTablaMundial() {
+            const grupo = mundialGrupos[mundialGrupoActual];
+            const url = getMundialApiUrl(grupo.id);
+
+            const title = document.getElementById('mundial-api-title');
+            const groupName = document.getElementById('mundial-group-name');
+            const lastUpdate = document.getElementById('mundial-last-update');
+            const tbody = document.getElementById('mundial-table-body');
+
+            title.textContent = `Fase de grupos - ${grupo.nombre}`;
+            groupName.textContent = grupo.nombre;
+
+            mostrarEstadoMundial('loading');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error HTTP ${response.status}`);
+                }
+
+                const json = await response.json();
+
+                if (
+                    !json ||
+                    json.status !== 'success' ||
+                    !Array.isArray(json.data) ||
+                    json.data.length === 0 ||
+                    !Array.isArray(json.data[0].rank)
+                ) {
+                    throw new Error('Respuesta API no válida.');
+                }
+
+                const classification = json.data[0];
+                const head = classification.classificationHead || {};
+                const apiGroupName =
+                    head.group?.alternateNames?.esES ||
+                    head.group?.name ||
+                    grupo.nombre;
+
+                const phaseName =
+                    head.phase?.alternateNames?.esES ||
+                    head.phase?.name ||
+                    'Fase de grupos';
+
+                title.textContent = `${phaseName} - ${apiGroupName}`;
+                groupName.textContent = apiGroupName;
+
+                const updateText = formatearFechaChile(classification.lastUpdate);
+                lastUpdate.textContent = updateText ? `Act. ${updateText}` : '';
+
+                tbody.innerHTML = '';
+
+                classification.rank.forEach(team => {
+                    const standing = team.standing || {};
+
+                    const flag =
+                        team.images?.urlFlag?.[2] ||
+                        team.images?.urlFlag?.[1] ||
+                        team.images?.urlFlag?.[0] ||
+                        team.imageUrl ||
+                        '';
+
+                    const tr = document.createElement('tr');
+
+                    tr.innerHTML = `
+                        <td class="col-pos">${standing.position || '-'}</td>
+                        <td class="col-team">
+                            <div class="mundial-team">
+                                ${flag ? `<img src="${flag}" alt="${team.name || ''}">` : ''}
+                                <span class="mundial-team-name">${team.name || team.fullName || '-'}</span>
+                            </div>
+                        </td>
+                        <td class="mundial-points">${standing.points || '0'}</td>
+                        <td>${standing.played || '0'}</td>
+                        <td>${standing.won || '0'}</td>
+                        <td>${standing.drawn || '0'}</td>
+                        <td>${standing.lost || '0'}</td>
+                        <td>${standing.for || '0'}</td>
+                        <td>${standing.against || '0'}</td>
+                        <td>${standing.difference || '0'}</td>
+                    `;
+
+                    tbody.appendChild(tr);
+                });
+
+                mostrarEstadoMundial('ok');
+
+            } catch (error) {
+                console.error('Error cargando tabla Mundial:', error);
+                mostrarEstadoMundial('error');
+            }
+        }
+
+        function rotarTablaMundial() {
+            mundialGrupoActual++;
+
+            if (mundialGrupoActual >= mundialGrupos.length) {
+                mundialGrupoActual = 0;
+            }
+
+            cargarTablaMundial();
+        }
+
+        /* ==============================
+           GRÁFICO KP
+        ============================== */
+
+        let kpChart = null;
 
         function getKpColor(value) {
             if (value >= 7) return '#C80000';
@@ -287,19 +574,24 @@
                 });
         }
 
-        // Cargar MARCA una sola vez.
-        // No se rota ni se recarga para evitar que afecte el iframe de YouTube.
-        cargarMarcaGrupo();
+        /* ==============================
+           INICIO
+        ============================== */
 
-        // Cargar gráfico KP al iniciar.
+        // Cargar tabla del Mundial al iniciar
+        cargarTablaMundial();
+
+        // Rotar grupos cada 1 minuto sin tocar YouTube
+        setInterval(rotarTablaMundial, tiempoRotacionMundial);
+
+        // Cargar gráfico KP al iniciar
         loadKpChart();
 
-        // Tiempo de actualización: 1 hora.
+        // Actualizar solo el gráfico KP cada 1 hora.
+        // No se recarga YouTube, Windy ni Meteoblue.
         const refreshTime = 3600000;
 
         setInterval(function() {
-            // Solo se actualiza el gráfico KP.
-            // No se recargan Windy, MARCA, YouTube ni Meteoblue para evitar reinicios.
             loadKpChart();
         }, refreshTime);
     </script>
