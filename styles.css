@@ -54,18 +54,56 @@
     background: #fff;
 }
 
+/* ==============================
+   COLUMNA CENTRAL: CUADRO MUNDIAL RECORTADO
+============================== */
+
 .worldcup-column {
     width: 550px;
     height: 1030px;
     overflow: hidden;
     background: #ffffff;
+    position: relative;
 }
 
+.worldcup-title {
+    height: 42px;
+    line-height: 42px;
+    box-sizing: border-box;
+    padding: 0 12px;
+    background: #111111;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.worldcup-frame-container {
+    width: 550px;
+    height: 988px;
+    overflow: hidden;
+    position: relative;
+    background: #ffffff;
+}
+
+/*
+   El iframe se carga más grande para que 365Scores muestre
+   la versión desktop del cuadro, y luego se escala.
+*/
 #worldcup-bracket-iframe {
-    width: 100%;
-    height: 1030px;
+    position: absolute;
+    top: -130px;
+    left: -12px;
+    width: 1224px;
+    height: 2200px;
     border: 0;
     background: #ffffff;
+    display: block;
+    transform: scale(0.455);
+    transform-origin: top left;
 }
 
 .right-iframes {
