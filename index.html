@@ -10,151 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
-
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            background: #ffffff;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-
-        .panel {
-            width: 1920px;
-            height: 1030px;
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-start;
-            gap: 0;
-            position: relative;
-            background: #ffffff;
-        }
-
-        .logo-dga {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            max-width: 120px;
-            z-index: 20;
-        }
-
-        /* ==============================
-           COLUMNA IZQUIERDA: WINDY + KP
-        ============================== */
-
-        .left-column {
-            width: 550px;
-            height: 1030px;
-            display: flex;
-            flex-direction: column;
-            background: #ffffff;
-        }
-
-        #windy-iframe {
-            width: 550px;
-            height: 515px;
-            border: 0;
-            display: block;
-        }
-
-        #kpindex-frame {
-            width: 550px;
-            height: 515px;
-            box-sizing: border-box;
-            overflow: hidden;
-            background: #ffffff;
-            border: 0;
-            position: relative;
-        }
-
-        #kpindex-frame canvas {
-            width: 100% !important;
-            height: 100% !important;
-            display: block;
-        }
-
-        #kpindex-error {
-            display: none;
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            font-size: 16px;
-            color: #b00020;
-            background: #fff;
-        }
-
-        /* ==============================
-           COLUMNA CENTRAL: CUADRO MUNDIAL
-        ============================== */
-
-        .worldcup-column {
-            width: 550px;
-            height: 1030px;
-            overflow: hidden;
-            background: #ffffff;
-            position: relative;
-        }
-
-        .worldcup-title {
-            height: 42px;
-            line-height: 42px;
-            box-sizing: border-box;
-            padding: 0 12px;
-            background: #111111;
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        .worldcup-frame-container {
-            width: 550px;
-            height: 988px;
-            overflow: hidden;
-            position: relative;
-            background: #ffffff;
-        }
-
-        #worldcup-bracket-iframe {
-            width: 100%;
-            height: 988px;
-            border: 0;
-            background: #ffffff;
-            display: block;
-        }
-
-        /* ==============================
-           COLUMNA DERECHA: YOUTUBE + METEOBLUE
-        ============================== */
-
-        .right-iframes {
-            width: 820px;
-            height: 1030px;
-            display: flex;
-            flex-direction: column;
-            background: #ffffff;
-        }
-
-        #video-iframe {
-            width: 820px;
-            height: 463px;
-            border: 0;
-            display: block;
-        }
-
-        #meteoblue-iframe {
-            width: 820px;
-            height: 567px;
-            border: 0;
-            display: block;
-        }
-    </style>
 </head>
 
 <body>
@@ -175,23 +30,18 @@
             </div>
         </div>
 
-        <!-- COLUMNA CENTRAL: CUADRO MUNDIAL 2026 -->
-       <div class="worldcup-column">
-    <div class="worldcup-title">
-        Mundial 2026 USA / Canadá / México - Fase Final
-    </div>
-
-    <div class="worldcup-frame-container">
-        <iframe
-            id="worldcup-bracket-iframe"
-            src="https://www.365scores.com/es/football/league/fifa-world-cup-5930/brackets"
-            title="Cuadro Mundial 2026"
-            frameborder="0"
-            scrolling="no"
-            loading="lazy">
-        </iframe>
-    </div>
-</div>
+        <!-- COLUMNA CENTRAL: CUADRO MUNDIAL 2026 RECORTADO -->
+        <div class="worldcup-column">
+            <div class="worldcup-frame-container">
+                <iframe
+                    id="worldcup-bracket-iframe"
+                    src="https://www.365scores.com/es/football/league/fifa-world-cup-5930/brackets"
+                    title="Cuadro Mundial 2026"
+                    frameborder="0"
+                    scrolling="no">
+                </iframe>
+            </div>
+        </div>
 
         <!-- COLUMNA DERECHA: YOUTUBE + METEOBLUE -->
         <div class="right-iframes">
@@ -229,8 +79,6 @@
         function loadKpChart() {
             $.getJSON('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json')
                 .done(function(response) {
-                    console.log('Respuesta NOAA:', response);
-
                     if (!Array.isArray(response) || response.length === 0) {
                         throw new Error('La respuesta NOAA está vacía o no es válida.');
                     }
@@ -250,7 +98,7 @@
                     const filteredData = data.slice(-16);
 
                     const labels = filteredData.map(item => {
-                        const start = moment.utc(item.time_tag).tz("America/Santiago");
+                        const start = moment.utc(item.time_tag).tz('America/Santiago');
                         const end = start.clone().add(3, 'hours');
                         return `${start.format('DD/MM HH:mm')} a ${end.format('HH:mm')}`;
                     });
