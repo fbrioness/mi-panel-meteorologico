@@ -7,7 +7,7 @@
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Meteorológico</title>
-    <link rel="stylesheet" href="styles.css?v=20260608-4">
+    <link rel="stylesheet" href="styles.css?v=20260608-5">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -763,7 +763,7 @@ body {
         <div class="right-iframes">
             <iframe
                 id="video-iframe"
-                src="https://www.youtube.com/embed/IEVv3T4ujj0?si=ltxYdesg0oi9mbHy&autoplay=1&mute=1&playsinline=1"
+                src="https://www.youtube.com/embed/IEVv3T4ujj0?si=ltxYdesg0oi9mbHy&autoplay=1&mute=0&playsinline=1&enablejsapi=1"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen
@@ -920,7 +920,7 @@ body {
             if (!scroller) return;
 
             let direction = 1;
-            const step = 150;
+            const step = 240;
 
             setInterval(function() {
                 const maxScroll = scroller.scrollHeight - scroller.clientHeight;
@@ -939,8 +939,30 @@ body {
                     top: direction * step,
                     behavior: 'smooth'
                 });
-            }, 4500);
+            }, 60000);
         }
+
+
+        function activarSonidoYouTube() {
+            const iframe = document.getElementById('video-iframe');
+            if (!iframe || !iframe.contentWindow) return;
+
+            const comandos = [
+                '{"event":"command","func":"unMute","args":[]}',
+                '{"event":"command","func":"setVolume","args":[100]}',
+                '{"event":"command","func":"playVideo","args":[]}'
+            ];
+
+            comandos.forEach(function(comando) {
+                iframe.contentWindow.postMessage(comando, '*');
+            });
+        }
+
+        window.addEventListener('load', function() {
+            setTimeout(activarSonidoYouTube, 3000);
+            setTimeout(activarSonidoYouTube, 10000);
+            setTimeout(activarSonidoYouTube, 30000);
+        });
 
         loadKpChart();
         iniciarScrollPartidos();
