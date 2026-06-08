@@ -1,7 +1,20 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
 .panel {
+    width: 1920px;
+    height: 1030px;
     display: flex;
-    gap: 10px;
     align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
+    position: relative;
+    background: #ffffff;
 }
 
 .logo-dga {
@@ -9,21 +22,26 @@
     top: 10px;
     left: 10px;
     max-width: 120px;
-    z-index: 10;
+    z-index: 20;
 }
+
+/* ==============================
+   COLUMNA IZQUIERDA: WINDY + KP
+============================== */
 
 .left-column {
     width: 550px;
     height: 1030px;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    background: #ffffff;
 }
 
 #windy-iframe {
     width: 550px;
     height: 515px;
     border: 0;
+    display: block;
 }
 
 #kpindex-frame {
@@ -55,7 +73,8 @@
 }
 
 /* ==============================
-   COLUMNA CENTRAL: CUADRO MUNDIAL RECORTADO
+   COLUMNA CENTRAL: CUADRO MUNDIAL 2026
+   Recorte visual de 365Scores
 ============================== */
 
 .worldcup-column {
@@ -66,50 +85,72 @@
     position: relative;
 }
 
-.worldcup-title {
-    height: 42px;
-    line-height: 42px;
-    box-sizing: border-box;
-    padding: 0 12px;
-    background: #111111;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
 .worldcup-frame-container {
     width: 550px;
-    height: 988px;
+    height: 1030px;
     overflow: hidden;
     position: relative;
     background: #ffffff;
 }
 
 /*
-   El iframe se carga más grande para que 365Scores muestre
-   la versión desktop del cuadro, y luego se escala.
+   Ajustes del recorte:
+
+   --bracket-top:
+   Más negativo = sube más la página dentro del recorte.
+   Menos negativo = baja el contenido.
+
+   --bracket-left:
+   Más negativo = mueve el cuadro hacia la izquierda.
+   Menos negativo = mueve el cuadro hacia la derecha.
+
+   --bracket-scale:
+   Escala visual del iframe.
+   Más alto = se ve más grande, pero entra menos contenido.
+   Más bajo = se ve más pequeño, pero entra más contenido.
 */
+
+:root {
+    --bracket-top: -95px;
+    --bracket-left: -70px;
+    --bracket-scale: 0.43;
+}
+
 #worldcup-bracket-iframe {
     position: absolute;
-    top: -130px;
-    left: -12px;
-    width: 1224px;
-    height: 2200px;
+    top: var(--bracket-top);
+    left: var(--bracket-left);
+    width: 1400px;
+    height: 2400px;
     border: 0;
     background: #ffffff;
     display: block;
-    transform: scale(0.455);
+    transform: scale(var(--bracket-scale));
     transform-origin: top left;
 }
+
+/* ==============================
+   COLUMNA DERECHA: YOUTUBE + METEOBLUE
+============================== */
 
 .right-iframes {
     width: 820px;
     height: 1030px;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    background: #ffffff;
+}
+
+#video-iframe {
+    width: 820px;
+    height: 463px;
+    border: 0;
+    display: block;
+}
+
+#meteoblue-iframe {
+    width: 820px;
+    height: 567px;
+    border: 0;
+    display: block;
 }
