@@ -30,16 +30,30 @@
             </div>
         </div>
 
-        <!-- COLUMNA CENTRAL: CUADRO MUNDIAL 2026 RECORTADO -->
+        <!-- COLUMNA CENTRAL: 16AVOS DE FINAL -->
         <div class="worldcup-column">
-            <div class="worldcup-frame-container">
-                <iframe
-                    id="worldcup-bracket-iframe"
-                    src="https://www.365scores.com/es/football/league/fifa-world-cup-5930/brackets"
-                    title="Cuadro Mundial 2026"
-                    frameborder="0"
-                    scrolling="no">
-                </iframe>
+            <div class="worldcup-header">
+                <div class="worldcup-title">Mundial 2026 USA / Canadá / México</div>
+                <div class="worldcup-subtitle">16avos de final</div>
+            </div>
+
+            <div class="round-of-32-list">
+                <div class="match-card"><div class="match-date">Lun, 29 jun · 16:30</div><div class="team-row"><span class="shield">◇</span><span>1E</span></div><div class="team-row"><span class="shield">◇</span><span>3A/B/C/D/F</span></div></div>
+                <div class="match-card"><div class="match-date">Mar, 30 jun · 17:00</div><div class="team-row"><span class="shield">◇</span><span>1I</span></div><div class="team-row"><span class="shield">◇</span><span>3C/D/F/G/H</span></div></div>
+                <div class="match-card"><div class="match-date">Dom, 28 jun · 15:00</div><div class="team-row"><span class="shield">◇</span><span>2A</span></div><div class="team-row"><span class="shield">◇</span><span>2B</span></div></div>
+                <div class="match-card"><div class="match-date">Lun, 29 jun · 21:00</div><div class="team-row"><span class="shield">◇</span><span>1F</span></div><div class="team-row"><span class="shield">◇</span><span>2C</span></div></div>
+                <div class="match-card"><div class="match-date">Jue, 2 jul · 19:00</div><div class="team-row"><span class="shield">◇</span><span>2K</span></div><div class="team-row"><span class="shield">◇</span><span>2L</span></div></div>
+                <div class="match-card"><div class="match-date">Jue, 2 jul · 15:00</div><div class="team-row"><span class="shield">◇</span><span>1H</span></div><div class="team-row"><span class="shield">◇</span><span>2J</span></div></div>
+                <div class="match-card"><div class="match-date">Mié, 1 jul · 20:00</div><div class="team-row"><span class="shield">◇</span><span>1D</span></div><div class="team-row"><span class="shield">◇</span><span>3B/E/F/I/J</span></div></div>
+                <div class="match-card"><div class="match-date">Mié, 1 jul · 16:00</div><div class="team-row"><span class="shield">◇</span><span>1G</span></div><div class="team-row"><span class="shield">◇</span><span>3A/E/H/I/J</span></div></div>
+                <div class="match-card"><div class="match-date">Lun, 29 jun · 13:00</div><div class="team-row"><span class="shield">◇</span><span>1C</span></div><div class="team-row"><span class="shield">◇</span><span>2F</span></div></div>
+                <div class="match-card"><div class="match-date">Mar, 30 jun · 13:00</div><div class="team-row"><span class="shield">◇</span><span>2E</span></div><div class="team-row"><span class="shield">◇</span><span>2I</span></div></div>
+                <div class="match-card"><div class="match-date">Mar, 30 jun · 21:00</div><div class="team-row"><span class="shield">◇</span><span>1A</span></div><div class="team-row"><span class="shield">◇</span><span>3C/E/F/H/I</span></div></div>
+                <div class="match-card"><div class="match-date">Mié, 1 jul · 12:00</div><div class="team-row"><span class="shield">◇</span><span>1L</span></div><div class="team-row"><span class="shield">◇</span><span>3E/H/I/J/K</span></div></div>
+                <div class="match-card"><div class="match-date">Vie, 3 jul · 18:00</div><div class="team-row"><span class="shield">◇</span><span>1J</span></div><div class="team-row"><span class="shield">◇</span><span>2H</span></div></div>
+                <div class="match-card"><div class="match-date">Vie, 3 jul · 14:00</div><div class="team-row"><span class="shield">◇</span><span>2D</span></div><div class="team-row"><span class="shield">◇</span><span>2G</span></div></div>
+                <div class="match-card"><div class="match-date">Jue, 2 jul · 23:00</div><div class="team-row"><span class="shield">◇</span><span>1B</span></div><div class="team-row"><span class="shield">◇</span><span>3E/F/G/I/J</span></div></div>
+                <div class="match-card"><div class="match-date">Vie, 3 jul · 23:00</div><div class="team-row"><span class="shield">◇</span><span>1K</span></div><div class="team-row"><span class="shield">◇</span><span>3D/E/I/J/L</span></div></div>
             </div>
         </div>
 
@@ -94,7 +108,6 @@
                         throw new Error('No hay datos válidos para graficar.');
                     }
 
-                    // Últimos 16 registros = 48 horas aprox. en intervalos de 3 horas
                     const filteredData = data.slice(-16);
 
                     const labels = filteredData.map(item => {
@@ -183,36 +196,24 @@
 
         function recargarIframe(id) {
             const iframe = document.getElementById(id);
-
-            if (!iframe || !iframe.src) {
-                return;
-            }
-
+            if (!iframe || !iframe.src) return;
             iframe.src = iframe.src;
         }
 
         function actualizarPanelCadaTresHoras() {
-            // Actualiza KP.
             loadKpChart();
 
-            // Recarga Windy 10 segundos después.
             setTimeout(function() {
                 recargarIframe('windy-iframe');
             }, 10000);
 
-            // Recarga Meteoblue 30 segundos después.
             setTimeout(function() {
                 recargarIframe('meteoblue-iframe');
             }, 30000);
-
-            // No se recarga YouTube.
-            // No se recarga 365Scores.
         }
 
-        // Cargar gráfico KP al iniciar.
         loadKpChart();
 
-        // Actualizar Windy, Meteoblue y KP cada 3 horas.
         const tiempoActualizacionGeneral = 10800000;
         setInterval(actualizarPanelCadaTresHoras, tiempoActualizacionGeneral);
     </script>
