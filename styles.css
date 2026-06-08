@@ -1,38 +1,77 @@
 .panel {
-    width: 100%;
-    height: 100vh;
     display: flex;
-    justify-content: space-between; /* Esto separará los iframes a los extremos opuestos del contenedor */
-    align-items: flex-start; /* Alinea los elementos hijos en la parte superior */
+    gap: 10px;
+    align-items: flex-start;
 }
 
 .logo-dga {
     position: absolute;
-    top: 20px;  /* Puedes ajustar estos valores según tus necesidades */
+    top: 10px;
     left: 10px;
-    width: 150px;  /* Ajusta el tamaño del logo según lo necesites */
-    z-index: 10;  /* Asegura que el logo esté por encima de otros elementos */
+    max-width: 120px;
+    z-index: 10;
 }
-.windy-iframe {
-    border: 1px solid #ccc;
-    margin-left: 10px;
+
+.left-column {
+    width: 550px;
+    height: 1030px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+#windy-iframe {
+    width: 550px;
+    height: 515px;
+    border: 0;
+}
+
+#kpindex-frame {
+    width: 550px;
+    height: 515px;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #ffffff;
+    border: 0;
+    position: relative;
+}
+
+#kpindex-frame canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+#kpindex-error {
+    display: none;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #b00020;
+    background: #fff;
+}
+
+.worldcup-column {
+    width: 550px;
+    height: 1030px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+#worldcup-bracket-iframe {
+    width: 100%;
+    height: 1030px;
+    border: 0;
+    background: #ffffff;
 }
 
 .right-iframes {
+    width: 820px;
+    height: 1030px;
     display: flex;
     flex-direction: column;
-    align-items: flex-end; /* Alinea los iframes a la derecha */
-}
-
-.top-right-iframe {
-    border: 1px solid #ccc;
-    margin-bottom: 10px; /* Espacio entre los iframes de la derecha */
-}
-
-.bottom-right-iframe {
-    border: 1px solid #ccc;
-}
-.iframe-container iframe {
-    display: block;
-    margin-bottom: 5px; /* Espacio entre los iframes, puedes ajustar según tus necesidades */
+    gap: 0;
 }
