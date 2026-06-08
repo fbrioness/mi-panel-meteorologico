@@ -302,9 +302,9 @@
         // 60000 = 1 minuto.
         const tiempoRotacionMundial = 60000;
 
-        function getMundialApiUrl(groupId) {
-            return `https://api.unidadeditorial.es/sports/v1/classifications/current/?site=2&type=10&tournament=0117&group=${groupId}&season=2025`;
-        }
+       function getMundialApiUrl(groupId) {
+    return `marca-proxy.php?group=${groupId}`;
+}
 
         function mostrarEstadoMundial(estado) {
             const loading = document.getElementById('mundial-api-loading');
