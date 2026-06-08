@@ -7,7 +7,7 @@
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Meteorológico</title>
-    <link rel="stylesheet" href="styles.css?v=20260608-20">
+    <link rel="stylesheet" href="styles.css?v=20260608-30">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,128 +15,345 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
 
     <style>
-        * { box-sizing: border-box; }
-        html, body {
-            width: 100%; height: 100%; margin: 0; padding: 0;
-            overflow: hidden; background: #ffffff; font-family: Arial, Helvetica, sans-serif;
-        }
-        .panel {
-            width: 1920px; height: 1030px; display: grid;
-            grid-template-columns: 550px 550px 820px; grid-template-rows: 1030px;
-            background: #ffffff; position: relative; overflow: hidden;
-        }
-        .logo-dga { position: absolute; top: 10px; left: 10px; width: 118px; height: auto; z-index: 50; }
-        .left-column { width: 550px; height: 1030px; display: grid; grid-template-rows: 515px 515px; background: #ffffff; overflow: hidden; }
-        #windy-iframe { width: 550px; height: 515px; display: block; border: 0; }
-        #kpindex-frame { width: 550px; height: 515px; position: relative; overflow: hidden; background: #ffffff; }
-        #kpindex-frame canvas { width: 100% !important; height: 100% !important; display: block; }
-        #kpindex-error { display: none; width: 100%; height: 100%; padding: 20px; color: #b00020; background: #ffffff; font-size: 16px; }
 
-        .worldcup-column {
-            width: 550px !important; height: 1030px !important; padding: 10px !important;
-            background: linear-gradient(180deg, #e8edf2 0%, #dfe6ec 100%) !important;
-            overflow: hidden !important; display: block !important;
-        }
-        #worldcup-fixture-widget {
-            width: 100% !important; height: 100% !important; border-radius: 18px !important;
-            background: #f4f7fa !important;
-            box-shadow: 0 0 0 1px rgba(20,31,43,0.12), 0 12px 26px rgba(20,31,43,0.18) !important;
-            overflow: hidden !important; display: flex !important; flex-direction: column !important;
-            font-family: Arial, Helvetica, sans-serif !important;
-        }
-        #worldcup-fixture-widget .fixture-topbar {
-            height: 92px !important; padding: 16px 18px !important;
-            background: linear-gradient(135deg, #171d24 0%, #2b3540 100%) !important;
-            color: #ffffff !important; display: flex !important; align-items: center !important;
-            justify-content: space-between !important; gap: 14px !important; flex: 0 0 auto !important;
-        }
-        #worldcup-fixture-widget .fixture-title { font-size: 25px !important; line-height: 28px !important; font-weight: 900 !important; letter-spacing: -0.3px !important; }
-        #worldcup-fixture-widget .fixture-subtitle { margin-top: 4px !important; font-size: 14px !important; color: #c9d1d8 !important; font-weight: 700 !important; }
-        #worldcup-fixture-widget .fixture-counter {
-            flex: 0 0 auto !important; padding: 9px 13px !important; border-radius: 999px !important;
-            background: #03a9f4 !important; color: #ffffff !important; font-size: 13px !important; font-weight: 900 !important;
-            text-transform: uppercase !important; letter-spacing: 0.3px !important;
-            box-shadow: 0 4px 10px rgba(3,169,244,0.25) !important;
-        }
-        #worldcup-fixture-widget .fixture-tabs {
-            height: 52px !important; display: flex !important; align-items: center !important;
-            padding: 0 12px !important; gap: 8px !important; background: #ffffff !important;
-            border-bottom: 1px solid #dce3e8 !important; flex: 0 0 auto !important;
-        }
-        #worldcup-fixture-widget .fixture-tab {
-            height: 34px !important; min-width: 92px !important; padding: 0 12px !important;
-            display: flex !important; align-items: center !important; justify-content: center !important;
-            border-radius: 999px !important; background: #edf2f5 !important; color: #5f6a72 !important;
-            font-size: 13px !important; font-weight: 900 !important;
-        }
-        #worldcup-fixture-widget .fixture-tab.active { background: #03a9f4 !important; color: #ffffff !important; }
-        #fixture-scroll {
-            flex: 1 1 auto !important; padding: 12px !important; overflow-y: auto !important; overflow-x: hidden !important;
-            scroll-behavior: smooth !important; background: #f3f6f8 !important;
-        }
-        #fixture-scroll::-webkit-scrollbar { width: 8px; }
-        #fixture-scroll::-webkit-scrollbar-track { background: #edf1f4; }
-        #fixture-scroll::-webkit-scrollbar-thumb { background: #b5c0c8; border-radius: 999px; }
-        #worldcup-fixture-widget .fixture-group {
-            margin-bottom: 14px !important; border-radius: 16px !important; overflow: hidden !important;
-            background: #ffffff !important; border: 1px solid #d9e1e7 !important;
-            box-shadow: 0 5px 14px rgba(20,31,43,0.08) !important;
-        }
-        #worldcup-fixture-widget .fixture-group-header {
-            min-height: 43px !important; padding: 0 14px !important; display: flex !important;
-            align-items: center !important; justify-content: space-between !important; gap: 10px !important;
-            background: linear-gradient(180deg, #edf3f7 0%, #e3ebf1 100%) !important;
-            color: #20282e !important; font-size: 14px !important; font-weight: 900 !important;
-        }
-        #worldcup-fixture-widget .fixture-group-header strong { flex: 0 0 auto !important; color: #69747c !important; font-size: 13px !important; font-weight: 900 !important; }
-        #worldcup-fixture-widget .game-card {
-            min-height: 74px !important; display: grid !important;
-            grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr) !important;
-            align-items: center !important; padding: 0 12px !important;
-            background: #ffffff !important; border-top: 1px solid #edf1f4 !important;
-        }
-        #worldcup-fixture-widget .game-card:nth-child(odd) { background: #fbfcfd !important; }
-        #worldcup-fixture-widget .team {
-            min-width: 0 !important; display: flex !important; align-items: center !important; gap: 9px !important;
-            color: #1f252b !important; font-size: 15px !important; line-height: 18px !important; font-weight: 900 !important;
-        }
-        #worldcup-fixture-widget .team-home { justify-content: flex-end !important; text-align: right !important; }
-        #worldcup-fixture-widget .team-away { justify-content: flex-start !important; text-align: left !important; }
-        #worldcup-fixture-widget .team-name {
-            min-width: 0 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important;
-        }
-        #worldcup-fixture-widget .team-badge {
-            width: 34px !important; height: 34px !important; flex: 0 0 34px !important; border-radius: 50% !important;
-            display: inline-flex !important; align-items: center !important; justify-content: center !important;
-            background: radial-gradient(circle at 30% 25%, #ffffff 0%, #d9e8f1 45%, #9fb6c5 100%) !important;
-            border: 2px solid #ffffff !important; box-shadow: 0 2px 6px rgba(20,31,43,0.22) !important;
-            color: #25313b !important; font-size: 10px !important; font-weight: 900 !important; letter-spacing: 0.2px !important;
-        }
-        #worldcup-fixture-widget .match-time {
-            height: 40px !important; min-width: 66px !important; margin: 0 auto !important; padding: 0 8px !important;
-            display: flex !important; align-items: center !important; justify-content: center !important;
-            border-radius: 13px !important; background: #1f252b !important; color: #ffffff !important;
-            font-size: 16px !important; font-weight: 900 !important; letter-spacing: 0.2px !important;
-            box-shadow: 0 3px 8px rgba(20,31,43,0.22) !important;
-        }
+* { box-sizing: border-box; }
 
-        .right-iframes { width: 820px; height: 1030px; display: grid; grid-template-rows: 463px 567px; background: #ffffff; overflow: hidden; }
-        #video-iframe { width: 820px; height: 463px; display: block; border: 0; background: #000000; }
-        #meteoblue-iframe { width: 820px; height: 567px; display: block; border: 0; background: #ffffff; }
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.panel {
+    width: 1920px;
+    height: 1030px;
+    display: grid;
+    grid-template-columns: 550px 550px 820px;
+    grid-template-rows: 1030px;
+    background: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-dga {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 118px;
+    height: auto;
+    z-index: 50;
+}
+
+/* ==============================
+   COLUMNA IZQUIERDA: TABLA PARTIDOS
+============================== */
+
+.worldcup-column {
+    width: 550px;
+    height: 1030px;
+    padding: 10px;
+    background: linear-gradient(180deg, #e8edf2 0%, #dfe6ec 100%);
+    overflow: hidden;
+    display: block;
+}
+
+#worldcup-fixture-widget {
+    width: 100%;
+    height: 100%;
+    border-radius: 18px;
+    background: #f4f7fa;
+    box-shadow: 0 0 0 1px rgba(20,31,43,0.12), 0 12px 26px rgba(20,31,43,0.18);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.fixture-topbar {
+    height: 92px;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, #171d24 0%, #2b3540 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex: 0 0 auto;
+}
+
+.fixture-title {
+    font-size: 25px;
+    line-height: 28px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+}
+
+.fixture-subtitle {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #c9d1d8;
+    font-weight: 700;
+}
+
+.fixture-counter {
+    flex: 0 0 auto;
+    padding: 9px 13px;
+    border-radius: 999px;
+    background: #03a9f4;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 10px rgba(3,169,244,0.25);
+}
+
+.fixture-tabs {
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    background: #ffffff;
+    border-bottom: 1px solid #dce3e8;
+    flex: 0 0 auto;
+}
+
+.fixture-tab {
+    height: 34px;
+    min-width: 92px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #edf2f5;
+    color: #5f6a72;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.fixture-tab.active {
+    background: #03a9f4;
+    color: #ffffff;
+}
+
+#fixture-scroll {
+    flex: 1 1 auto;
+    padding: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    background: #f3f6f8;
+}
+
+#fixture-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+#fixture-scroll::-webkit-scrollbar-track {
+    background: #edf1f4;
+}
+
+#fixture-scroll::-webkit-scrollbar-thumb {
+    background: #b5c0c8;
+    border-radius: 999px;
+}
+
+.fixture-group {
+    margin-bottom: 14px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #d9e1e7;
+    box-shadow: 0 5px 14px rgba(20,31,43,0.08);
+}
+
+.fixture-group-header {
+    min-height: 43px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: linear-gradient(180deg, #edf3f7 0%, #e3ebf1 100%);
+    color: #20282e;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.fixture-group-header strong {
+    flex: 0 0 auto;
+    color: #69747c;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.game-card {
+    min-height: 74px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr);
+    align-items: center;
+    padding: 0 12px;
+    background: #ffffff;
+    border-top: 1px solid #edf1f4;
+}
+
+.game-card:nth-child(odd) {
+    background: #fbfcfd;
+}
+
+.team {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #1f252b;
+    font-size: 15px;
+    line-height: 18px;
+    font-weight: 900;
+}
+
+.team-home {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.team-away {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.team-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-badge {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 30% 25%, #ffffff 0%, #d9e8f1 45%, #9fb6c5 100%);
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(20,31,43,0.22);
+    color: #25313b;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+}
+
+.match-time {
+    height: 40px;
+    min-width: 66px;
+    margin: 0 auto;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: #1f252b;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    box-shadow: 0 3px 8px rgba(20,31,43,0.22);
+}
+
+/* ==============================
+   COLUMNA CENTRAL: INSTAGRAM + KP
+============================== */
+
+.iframe-container {
+    width: 550px;
+    height: 1030px;
+    display: grid;
+    grid-template-rows: 515px 515px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+#instagram-1 {
+    width: 550px;
+    height: 515px;
+    border: 0;
+    display: block;
+    background: #ffffff;
+}
+
+#kpindex-frame {
+    width: 550px;
+    height: 515px;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #ffffff;
+    border: 0;
+    position: relative;
+}
+
+#kpindex-frame canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+#kpindex-error {
+    display: none;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #b00020;
+    background: #ffffff;
+}
+
+/* ==============================
+   COLUMNA DERECHA: YOUTUBE + METEOBLUE
+============================== */
+
+.right-iframes {
+    width: 820px;
+    height: 1030px;
+    display: grid;
+    grid-template-rows: 463px 567px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+#video-iframe {
+    width: 820px;
+    height: 463px;
+    display: block;
+    border: 0;
+    background: #000000;
+}
+
+#meteoblue-iframe {
+    width: 820px;
+    height: 567px;
+    display: block;
+    border: 0;
+    background: #ffffff;
+}
+
     </style>
 </head>
 <body>
     <div class="panel">
         <img src="https://dga.cerofilas.gob.cl/logos/dga.jpg" alt="Logo DGA" class="logo-dga">
 
-        <div class="left-column">
-            <iframe id="windy-iframe" src="https://embed.windy.com/embed2.html?lat=-40.246&lon=-72.026&detailLat=-36.440&detailLon=-70.6500&width=550&height=515&zoom=5&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" frameborder="0"></iframe>
-            <div id="kpindex-frame">
-                <canvas id="planetary_k_index_chart"></canvas>
-                <div id="kpindex-error">No fue posible cargar el gráfico del índice Kp.</div>
-            </div>
-        </div>
-
+        <!-- COLUMNA IZQUIERDA: Tabla de partidos en lugar de Windy -->
         <section class="worldcup-column">
             <div id="worldcup-fixture-widget">
                 <div class="fixture-topbar">
@@ -156,31 +373,53 @@
             </div>
         </section>
 
+        <!-- COLUMNA CENTRAL: Instagram + KP, como estaba originalmente -->
+        <div class="iframe-container">
+            <iframe
+                id="instagram-1"
+                src="https://www.instagram.com/mop_cl/embed"
+                width="550"
+                height="515"
+                frameborder="0"
+                scrolling="no"
+                allowtransparency="true">
+            </iframe>
+
+            <div id="kpindex-frame">
+                <canvas id="planetary_k_index_chart"></canvas>
+                <div id="kpindex-error">No fue posible cargar el gráfico del índice Kp.</div>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: YouTube + Meteoblue -->
         <div class="right-iframes">
             <iframe
                 id="video-iframe"
                 src="https://www.youtube.com/embed/sJWlqkxaXfM?si=-jB9FKIZY5FAyBAH"
-                title="YouTube en vivo"
-                frameborder="0"
-                allow="autoplay; encrypted-media; picture-in-picture; web-share"
+                width="820"
+                height="463"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen
                 scrolling="no">
             </iframe>
 
             <iframe
                 id="meteoblue-iframe"
+                class="bottom-right-iframe"
                 src="https://www.meteoblue.com/es/tiempo/widget/daily/santiago-de-chile_chile_3871336?geoloc=fixed&days=7&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&precipunit=MILLIMETER&coloured=coloured&pictoicon=0&pictoicon=1&maxtemperature=0&maxtemperature=1&mintemperature=0&mintemperature=1&windspeed=0&windspeed=1&windgust=0&winddirection=0&winddirection=1&uv=0&humidity=0&precipitation=0&precipitation=1&precipitationprobability=0&precipitationprobability=1&spot=0&spot=1&pressure=0&layout=light"
                 frameborder="0"
                 scrolling="NO"
                 allowtransparency="true"
-                sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox">
+                sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
+                style="width: 820px; height: 567px">
             </iframe>
         </div>
     </div>
 
     <script>
+
         const matches = [
-            { group: 'Grupo A · Fecha 1', date: '11/06/2026', games: [['México','MÉX','15:00','Sudáfrica','SUD'], ['Corea del Sur','CDS','22:00','Rep. Checa','CHE']] },
+            { group: 'Grupo A · Fecha 1', date: '11/06/2026', games: [['México','MÉX','15:00','Sudáfrica','SUD'], ['Corea del Sur','CDS','22:00','República Checa','CHE']] },
             { group: 'Grupo B · Fecha 1', date: '12/06/2026', games: [['Canadá','CAN','15:00','Bosnia Herz.','BH']] },
             { group: 'Grupo D · Fecha 1', date: '12/06/2026', games: [['Estados Unidos','USA','21:00','Paraguay','PAR']] },
             { group: 'Grupo B · Fecha 1', date: '13/06/2026', games: [['Qatar','QAT','15:00','Suiza','SUI']] },
@@ -191,20 +430,21 @@
             { group: 'Grupo H · Fecha 1', date: '15/06/2026', games: [['España','ESP','12:00','Cabo Verde','CV'], ['Arabia Saudita','AS','18:00','Uruguay','URU']] },
             { group: 'Grupo G · Fecha 1', date: '15/06/2026', games: [['Bélgica','BEL','15:00','Egipto','EGI'], ['Irán','IRN','21:00','Nueva Zelanda','NZ']] },
             { group: 'Grupo I · Fecha 1', date: '16/06/2026', games: [['Francia','FRA','15:00','Senegal','SEN'], ['Irak','IRK','18:00','Noruega','NOR'], ['Argentina','ARG','21:00','Argelia','ALG']] },
-            { group: 'Grupo J · Fecha 1', date: '17/06/2026', games: [['Austria','AUT','00:00','Jordania','JOR'], ['Portugal','POR','13:00','RD Congo','RDC'], ['Inglaterra','ING','16:00','Croacia','CRO'], ['Ghana','GHA','19:00','Panamá','PAN'], ['Uzbekistán','UZB','22:00','Colombia','COL']] },
+            { group: 'Grupo J/K/L · Fecha 1', date: '17/06/2026', games: [['Austria','AUT','00:00','Jordania','JOR'], ['Portugal','POR','13:00','RD Congo','RDC'], ['Inglaterra','ING','16:00','Croacia','CRO'], ['Ghana','GHA','19:00','Panamá','PAN'], ['Uzbekistán','UZB','22:00','Colombia','COL']] },
 
-            { group: 'Grupo A · Fecha 2', date: '18/06/2026', games: [['Rep. Checa','CHE','12:00','Sudáfrica','SUD'], ['Suiza','SUI','15:00','Bosnia Herz.','BH'], ['Canadá','CAN','18:00','Qatar','QAT'], ['México','MÉX','21:00','Corea del Sur','CDS']] },
-            { group: 'Grupo D · Fecha 2', date: '19/06/2026', games: [['Estados Unidos','USA','15:00','Australia','AUS'], ['Escocia','ESC','15:00','Marruecos','MAR'], ['Brasil','BRA','21:00','Haití','HAI']] },
-            { group: 'Grupo D · Fecha 2', date: '20/06/2026', games: [['Turquía','TUR','00:00','Paraguay','PAR'], ['Países Bajos','PB','13:00','Suecia','SUE'], ['Alemania','ALE','16:00','Costa de Marfil','CM'], ['Ecuador','ECU','20:00','Curazao','CUR']] },
-            { group: 'Grupo F · Fecha 2', date: '21/06/2026', games: [['Túnez','TUN','00:00','Japón','JAP'], ['España','ESP','12:00','Arabia Saudita','AS'], ['Bélgica','BEL','15:00','Irán','IRN'], ['Uruguay','URU','18:00','Cabo Verde','CV'], ['Nueva Zelanda','NZ','21:00','Egipto','EGI']] },
-            { group: 'Grupo J · Fecha 2', date: '22/06/2026', games: [['Argentina','ARG','13:00','Austria','AUT'], ['Francia','FRA','17:00','Irak','IRK'], ['Noruega','NOR','20:00','Senegal','SEN'], ['Jordania','JOR','23:00','Argelia','ALG']] },
-            { group: 'Grupo K · Fecha 2', date: '23/06/2026', games: [['Portugal','POR','13:00','Uzbekistán','UZB'], ['Inglaterra','ING','16:00','Ghana','GHA'], ['Panamá','PAN','19:00','Croacia','CRO'], ['Colombia','COL','22:00','RD Congo','RDC']] },
+            { group: 'Grupo A/B · Fecha 2', date: '18/06/2026', games: [['República Checa','CHE','12:00','Sudáfrica','SUD'], ['Suiza','SUI','15:00','Bosnia Herz.','BH'], ['Canadá','CAN','18:00','Qatar','QAT'], ['México','MÉX','21:00','Corea del Sur','CDS']] },
+            { group: 'Grupo C/D · Fecha 2', date: '19/06/2026', games: [['Estados Unidos','USA','15:00','Australia','AUS'], ['Escocia','ESC','15:00','Marruecos','MAR'], ['Brasil','BRA','21:00','Haití','HAI']] },
+            { group: 'Grupo D/E/F · Fecha 2', date: '20/06/2026', games: [['Turquía','TUR','00:00','Paraguay','PAR'], ['Países Bajos','PB','13:00','Suecia','SUE'], ['Alemania','ALE','16:00','Costa de Marfil','CM'], ['Ecuador','ECU','20:00','Curazao','CUR']] },
+            { group: 'Grupo F/G/H · Fecha 2', date: '21/06/2026', games: [['Túnez','TUN','00:00','Japón','JAP'], ['España','ESP','12:00','Arabia Saudita','AS'], ['Bélgica','BEL','15:00','Irán','IRN'], ['Uruguay','URU','18:00','Cabo Verde','CV'], ['Nueva Zelanda','NZ','21:00','Egipto','EGI']] },
+            { group: 'Grupo I/J · Fecha 2', date: '22/06/2026', games: [['Argentina','ARG','13:00','Austria','AUT'], ['Francia','FRA','17:00','Irak','IRK'], ['Noruega','NOR','20:00','Senegal','SEN'], ['Jordania','JOR','23:00','Argelia','ALG']] },
+            { group: 'Grupo K/L · Fecha 2', date: '23/06/2026', games: [['Portugal','POR','13:00','Uzbekistán','UZB'], ['Inglaterra','ING','16:00','Ghana','GHA'], ['Panamá','PAN','19:00','Croacia','CRO'], ['Colombia','COL','22:00','RD Congo','RDC']] },
 
-            { group: 'Grupo B · Fecha 3', date: '24/06/2026', games: [['Suiza','SUI','15:00','Canadá','CAN'], ['Bosnia Herz.','BH','15:00','Qatar','QAT'], ['Brasil','BRA','18:00','Escocia','ESC'], ['Marruecos','MAR','18:00','Haití','HAI'], ['México','MÉX','21:00','Rep. Checa','CHE'], ['Corea del Sur','CDS','21:00','Sudáfrica','SUD']] },
-            { group: 'Grupo E/F/D · Fecha 3', date: '25/06/2026', games: [['Ecuador','ECU','16:00','Alemania','ALE'], ['Curazao','CUR','16:00','Costa de Marfil','CM'], ['Túnez','TUN','19:00','Países Bajos','PB'], ['Japón','JAP','19:00','Suecia','SUE'], ['Estados Unidos','USA','22:00','Turquía','TUR'], ['Paraguay','PAR','22:00','Australia','AUS']] },
-            { group: 'Grupo I/H/G · Fecha 3', date: '26/06/2026', games: [['Noruega','NOR','15:00','Francia','FRA'], ['Senegal','SEN','15:00','Irak','IRK'], ['Uruguay','URU','20:00','España','ESP'], ['Cabo Verde','CV','20:00','Arabia Saudita','AS'], ['Nueva Zelanda','NZ','23:00','Bélgica','BEL'], ['Egipto','EGI','23:00','Irán','IRN']] },
-            { group: 'Grupo L/K/J · Fecha 3', date: '27/06/2026', games: [['Panamá','PAN','17:00','Inglaterra','ING'], ['Croacia','CRO','17:00','Ghana','GHA'], ['Colombia','COL','19:30','Portugal','POR'], ['RD Congo','RDC','19:30','Uzbekistán','UZB'], ['Argentina','ARG','22:00','Jordania','JOR'], ['Argelia','ALG','22:00','Austria','AUT']] }
+            { group: 'Grupo A/B/C · Fecha 3', date: '24/06/2026', games: [['Suiza','SUI','15:00','Canadá','CAN'], ['Bosnia Herz.','BH','15:00','Qatar','QAT'], ['Brasil','BRA','18:00','Escocia','ESC'], ['Marruecos','MAR','18:00','Haití','HAI'], ['México','MÉX','21:00','República Checa','CHE'], ['Corea del Sur','CDS','21:00','Sudáfrica','SUD']] },
+            { group: 'Grupo D/E/F · Fecha 3', date: '25/06/2026', games: [['Ecuador','ECU','16:00','Alemania','ALE'], ['Curazao','CUR','16:00','Costa de Marfil','CM'], ['Túnez','TUN','19:00','Países Bajos','PB'], ['Japón','JAP','19:00','Suecia','SUE'], ['Estados Unidos','USA','22:00','Turquía','TUR'], ['Paraguay','PAR','22:00','Australia','AUS']] },
+            { group: 'Grupo G/H/I · Fecha 3', date: '26/06/2026', games: [['Noruega','NOR','15:00','Francia','FRA'], ['Senegal','SEN','15:00','Irak','IRK'], ['Uruguay','URU','20:00','España','ESP'], ['Cabo Verde','CV','20:00','Arabia Saudita','AS'], ['Nueva Zelanda','NZ','23:00','Bélgica','BEL'], ['Egipto','EGI','23:00','Irán','IRN']] },
+            { group: 'Grupo J/K/L · Fecha 3', date: '27/06/2026', games: [['Panamá','PAN','17:00','Inglaterra','ING'], ['Croacia','CRO','17:00','Ghana','GHA'], ['Colombia','COL','19:30','Portugal','POR'], ['RD Congo','RDC','19:30','Uzbekistán','UZB'], ['Argentina','ARG','22:00','Jordania','JOR'], ['Argelia','ALG','22:00','Austria','AUT']] }
         ];
+
 
         function renderFixtures() {
             const container = document.getElementById('fixture-scroll');
@@ -234,8 +474,10 @@
         function scrollWorldCupWidget() {
             const el = document.getElementById('fixture-scroll');
             if (!el) return;
+
             const maxScroll = el.scrollHeight - el.clientHeight;
             if (maxScroll <= 0) return;
+
             if (el.scrollTop + 520 >= maxScroll) {
                 el.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
@@ -244,6 +486,7 @@
         }
 
         let kpChart = null;
+
         function getKpColor(value) {
             if (value >= 7) return '#C80000';
             if (value >= 5) return '#FF0000';
@@ -255,36 +498,104 @@
         function loadKpChart() {
             $.getJSON('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json')
                 .done(function(response) {
-                    if (!Array.isArray(response) || response.length === 0) throw new Error('Respuesta NOAA no válida.');
-                    const data = response.filter(item => item && item.time_tag && item.Kp !== undefined && !isNaN(parseFloat(item.Kp)));
-                    if (data.length === 0) throw new Error('No hay datos válidos para graficar.');
+                    if (!Array.isArray(response) || response.length === 0) {
+                        throw new Error('La respuesta NOAA está vacía o no es válida.');
+                    }
+
+                    const data = response.filter(item =>
+                        item &&
+                        item.time_tag &&
+                        item.Kp !== undefined &&
+                        !isNaN(parseFloat(item.Kp))
+                    );
+
+                    if (data.length === 0) {
+                        throw new Error('No hay datos válidos para graficar.');
+                    }
+
                     const filteredData = data.slice(-16);
+
                     const labels = filteredData.map(item => {
-                        const start = moment.utc(item.time_tag).tz('America/Santiago');
+                        const start = moment.utc(item.time_tag).tz("America/Santiago");
                         const end = start.clone().add(3, 'hours');
                         return `${start.format('DD/MM HH:mm')} a ${end.format('HH:mm')}`;
                     });
+
                     const values = filteredData.map(item => parseFloat(item.Kp));
+
                     const ctx = document.getElementById('planetary_k_index_chart').getContext('2d');
                     document.getElementById('kpindex-error').style.display = 'none';
-                    if (kpChart) kpChart.destroy();
+
+                    if (kpChart) {
+                        kpChart.destroy();
+                    }
+
                     kpChart = new Chart(ctx, {
                         type: 'bar',
-                        data: { labels, datasets: [{ label: 'Índice Kp', data: values, backgroundColor: values.map(getKpColor), borderColor: '#666666', borderWidth: 1 }] },
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Índice Kp',
+                                data: values,
+                                backgroundColor: values.map(getKpColor),
+                                borderColor: '#666666',
+                                borderWidth: 1
+                            }]
+                        },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
                             animation: false,
-                            layout: { padding: { top: 10, right: 10, bottom: 10, left: 10 } },
-                            scales: {
-                                y: { beginAtZero: true, max: 9, ticks: { stepSize: 1 }, title: { display: true, text: 'Índice Kp' } },
-                                x: { ticks: { autoSkip: true, maxRotation: 90, minRotation: 45, font: { size: 10 } }, title: { display: true, text: 'Hora Local de Chile' } }
+                            layout: {
+                                padding: {
+                                    top: 10,
+                                    right: 10,
+                                    bottom: 10,
+                                    left: 10
+                                }
                             },
-                            plugins: { legend: { display: true }, title: { display: true, text: 'Índice K Planetario Estimado (Últimas 48 horas)' } }
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 9,
+                                    ticks: {
+                                        stepSize: 1
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Índice Kp'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        autoSkip: true,
+                                        maxRotation: 90,
+                                        minRotation: 45,
+                                        font: {
+                                            size: 10
+                                        }
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Hora Local de Chile'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Índice K Planetario Estimado (Últimas 48 horas)'
+                                }
+                            }
                         }
                     });
                 })
-                .fail(function() { document.getElementById('kpindex-error').style.display = 'block'; });
+                .fail(function() {
+                    document.getElementById('kpindex-error').style.display = 'block';
+                });
         }
 
         function recargarIframe(id) {
@@ -294,15 +605,29 @@
         }
 
         function actualizarPanelCadaTresHoras() {
+            // Ya no se recarga Windy porque fue retirado del panel.
             loadKpChart();
-            setTimeout(() => recargarIframe('windy-iframe'), 10000);
-            setTimeout(() => recargarIframe('meteoblue-iframe'), 30000);
+
+            setTimeout(function() {
+                recargarIframe('instagram-1');
+            }, 10000);
+
+            setTimeout(function() {
+                recargarIframe('meteoblue-iframe');
+            }, 30000);
+
+            // No se recarga YouTube.
         }
 
         renderFixtures();
         loadKpChart();
+
+        // Scroll discreto: baja una pantalla cada 1 minuto.
         setInterval(scrollWorldCupWidget, 60000);
-        setInterval(actualizarPanelCadaTresHoras, 10800000);
+
+        // Instagram, Meteoblue y KP cada 3 horas.
+        const tiempoActualizacionGeneral = 10800000;
+        setInterval(actualizarPanelCadaTresHoras, tiempoActualizacionGeneral);
     </script>
 </body>
 </html>
