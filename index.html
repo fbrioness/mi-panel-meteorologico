@@ -41,7 +41,7 @@
         #marca-grupos-viewport {
             position: relative;
             width: 550px;
-            height: 433px;
+            height: 473px;
             overflow: hidden;
             background: #ffffff;
         }
@@ -56,30 +56,6 @@
             transform: scale(0.61);
             transform-origin: top left;
             background: #ffffff;
-        }
-
-        #marca-cookie-help {
-            height: 40px;
-            box-sizing: border-box;
-            padding: 5px 8px;
-            background: #f5f5f5;
-            color: #333333;
-            border-top: 1px solid #dddddd;
-            font-family: Arial, sans-serif;
-            font-size: 11px;
-            line-height: 14px;
-            text-align: center;
-            overflow: hidden;
-        }
-
-        #marca-cookie-help a {
-            color: #111111;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        #marca-cookie-help a:hover {
-            text-decoration: underline;
         }
 
         #kpindex-frame {
@@ -111,6 +87,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="panel">
         <img src="https://dga.cerofilas.gob.cl/logos/dga.jpg" alt="Logo DGA" class="logo-dga">
@@ -125,9 +102,10 @@
         </iframe>
 
         <div class="iframe-container">
-            <!-- Reemplazo de Instagram por rotador automático de grupos Mundial 2026 -->
+
+            <!-- Reemplazo de Instagram por iframe de MARCA -->
             <div id="marca-grupos-widget">
-                <div id="marca-grupos-title">Fase de grupos - Mundial 2026</div>
+                <div id="marca-grupos-title">Fase de grupos - Grupo H</div>
 
                 <div id="marca-grupos-viewport">
                     <iframe
@@ -137,14 +115,6 @@
                         referrerpolicy="no-referrer-when-downgrade"
                         scrolling="no">
                     </iframe>
-                </div>
-
-                <div id="marca-cookie-help">
-                    Si la tabla se ve difuminada,
-                    <a id="marca-cookie-link" href="https://www.marca.com/futbol/mundial/calendario/grupo-h.html?intcmp=MENUMIGA&s_kw=fase-de-grupos" target="_blank" rel="noopener">
-                        abre MARCA y acepta cookies
-                    </a>.
-                    Luego recarga este panel.
                 </div>
             </div>
 
@@ -157,6 +127,7 @@
 
         <!-- Contenedor para los iframes de la derecha -->
         <div class="right-iframes">
+
             <!-- Iframe superior derecho: YouTube -->
             <iframe
                 id="video-iframe"
@@ -186,57 +157,15 @@
     <script>
         let kpChart = null;
 
-        const marcaGrupos = [
-            { nombre: "Grupo A", slug: "grupo-a" },
-            { nombre: "Grupo B", slug: "grupo-b" },
-            { nombre: "Grupo C", slug: "grupo-c" },
-            { nombre: "Grupo D", slug: "grupo-d" },
-            { nombre: "Grupo E", slug: "grupo-e" },
-            { nombre: "Grupo F", slug: "grupo-f" },
-            { nombre: "Grupo G", slug: "grupo-g" },
-            { nombre: "Grupo H", slug: "grupo-h" },
-            { nombre: "Grupo I", slug: "grupo-i" },
-            { nombre: "Grupo J", slug: "grupo-j" },
-            { nombre: "Grupo K", slug: "grupo-k" },
-            { nombre: "Grupo L", slug: "grupo-l" }
-        ];
-
-        let marcaGrupoActual = 0;
-
-        // Tiempo de rotación de MARCA.
-        // 60000 = 1 minuto por grupo.
-        // Puedes cambiarlo a 30000 para 30 segundos o 120000 para 2 minutos.
-        const tiempoRotacionMarca = 60000;
-
-        function getMarcaGrupoUrl(grupo) {
-            return `https://www.marca.com/futbol/mundial/calendario/${grupo.slug}.html?intcmp=MENUMIGA&s_kw=fase-de-grupos`;
-        }
-
         function cargarMarcaGrupo() {
-            const grupo = marcaGrupos[marcaGrupoActual];
-            const frame = document.getElementById('marca-grupos-frame');
-            const title = document.getElementById('marca-grupos-title');
-            const cookieLink = document.getElementById('marca-cookie-link');
-            const url = getMarcaGrupoUrl(grupo);
+            const marcaFrame = document.getElementById('marca-grupos-frame');
 
-            title.textContent = `Fase de grupos - ${grupo.nombre}`;
-            cookieLink.href = url;
+            const marcaUrl = 'https://www.marca.com/futbol/mundial/calendario/grupo-h.html?intcmp=MENUMIGA&s_kw=fase-de-grupos';
 
-            // Evita recargar el iframe si la URL ya está cargada.
-            if (frame.dataset.currentUrl !== url) {
-                frame.dataset.currentUrl = url;
-                frame.src = url;
+            if (marcaFrame.dataset.currentUrl !== marcaUrl) {
+                marcaFrame.dataset.currentUrl = marcaUrl;
+                marcaFrame.src = marcaUrl;
             }
-        }
-
-        function rotarMarcaGrupo() {
-            marcaGrupoActual++;
-
-            if (marcaGrupoActual >= marcaGrupos.length) {
-                marcaGrupoActual = 0;
-            }
-
-            cargarMarcaGrupo();
         }
 
         function getKpColor(value) {
@@ -267,7 +196,7 @@
                         throw new Error('No hay datos válidos para graficar.');
                     }
 
-                    // Últimos 16 registros = 48 horas aprox. en intervalos de 3 horas.
+                    // Últimos 16 registros = 48 horas aprox. en intervalos de 3 horas
                     const filteredData = data.slice(-16);
 
                     const labels = filteredData.map(item => {
@@ -358,31 +287,20 @@
                 });
         }
 
-        // Carga inicial de MARCA y rotación más lenta para no afectar otros iframes.
+        // Cargar MARCA una sola vez.
+        // No se rota ni se recarga para evitar que afecte el iframe de YouTube.
         cargarMarcaGrupo();
-        setInterval(rotarMarcaGrupo, tiempoRotacionMarca);
 
         // Cargar gráfico KP al iniciar.
         loadKpChart();
 
-        // Tiempo de actualización general: 1 hora.
+        // Tiempo de actualización: 1 hora.
         const refreshTime = 3600000;
 
         setInterval(function() {
-            // Actualizar iframe de Windy.
-            const windyIframe = document.getElementById('windy-iframe');
-            windyIframe.src = windyIframe.src;
-
-            // Actualizar gráfico KP.
+            // Solo se actualiza el gráfico KP.
+            // No se recargan Windy, MARCA, YouTube ni Meteoblue para evitar reinicios.
             loadKpChart();
-
-            // Actualizar iframe de Meteoblue.
-            const meteoblueIframe = document.getElementById('meteoblue-iframe');
-            meteoblueIframe.src = meteoblueIframe.src;
-
-            // IMPORTANTE:
-            // No se recarga aquí el iframe de MARCA para evitar consumo innecesario
-            // y posibles interferencias con YouTube.
         }, refreshTime);
     </script>
 </body>
