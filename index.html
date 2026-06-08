@@ -2,14 +2,337 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Meteorológico</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260608-5">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
+
+    <style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.panel {
+    width: 1920px;
+    height: 1030px;
+    display: grid;
+    grid-template-columns: 550px 550px 820px;
+    grid-template-rows: 1030px;
+    background: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-dga {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 118px;
+    height: auto;
+    z-index: 50;
+}
+
+/* ==============================
+   COLUMNA IZQUIERDA: WINDY + KP
+============================== */
+
+.left-column {
+    width: 550px;
+    height: 1030px;
+    display: grid;
+    grid-template-rows: 515px 515px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+#windy-iframe {
+    width: 550px;
+    height: 515px;
+    display: block;
+    border: 0;
+}
+
+#kpindex-frame {
+    width: 550px;
+    height: 515px;
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+#kpindex-frame canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+#kpindex-error {
+    display: none;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    color: #b00020;
+    background: #ffffff;
+    font-size: 16px;
+}
+
+/* ==============================
+   COLUMNA CENTRAL: WIDGET MUNDIAL
+============================== */
+
+.worldcup-column {
+    width: 550px;
+    height: 1030px;
+    padding: 10px;
+    background: #e9eef3;
+    overflow: hidden;
+}
+
+.fixture-widget {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    background: #f3f6f8;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 10px 24px rgba(0,0,0,0.12);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.fixture-topbar {
+    height: 92px;
+    padding: 16px 18px;
+    background: #1f252b;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex: 0 0 auto;
+}
+
+.fixture-title {
+    font-size: 25px;
+    line-height: 28px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+}
+
+.fixture-subtitle {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #c9d1d8;
+    font-weight: 600;
+}
+
+.fixture-counter {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #03a9f4;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.fixture-tabs {
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    background: #ffffff;
+    border-bottom: 1px solid #dce3e8;
+    flex: 0 0 auto;
+}
+
+.fixture-tab {
+    height: 34px;
+    min-width: 106px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #edf2f5;
+    color: #5f6a72;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.fixture-tab.active {
+    background: #03a9f4;
+    color: #ffffff;
+}
+
+.fixture-scroll {
+    flex: 1 1 auto;
+    padding: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    background: #f3f6f8;
+}
+
+.fixture-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.fixture-scroll::-webkit-scrollbar-track {
+    background: #edf1f4;
+}
+
+.fixture-scroll::-webkit-scrollbar-thumb {
+    background: #b5c0c8;
+    border-radius: 999px;
+}
+
+.fixture-group {
+    margin-bottom: 14px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #d9e1e7;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.055);
+}
+
+.fixture-group-header {
+    height: 42px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #e7edf2;
+    color: #20282e;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.fixture-group-header strong {
+    flex: 0 0 auto;
+    color: #69747c;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.game-card {
+    height: 70px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+    align-items: center;
+    padding: 0 12px;
+    background: #ffffff;
+    border-top: 1px solid #edf1f4;
+}
+
+.game-card:nth-child(odd) {
+    background: #fbfcfd;
+}
+
+.team {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #1f252b;
+    font-size: 15px;
+    line-height: 18px;
+    font-weight: 900;
+}
+
+.team-home {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.team-away {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.team span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team img {
+    width: 34px !important;
+    height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+    object-fit: contain;
+    flex: 0 0 34px;
+    border-radius: 50%;
+}
+
+.match-time {
+    height: 38px;
+    min-width: 62px;
+    margin: 0 auto;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #1f252b;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+}
+
+/* ==============================
+   COLUMNA DERECHA: YOUTUBE + METEOBLUE
+============================== */
+
+.right-iframes {
+    width: 820px;
+    height: 1030px;
+    display: grid;
+    grid-template-rows: 463px 567px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+#video-iframe {
+    width: 820px;
+    height: 463px;
+    display: block;
+    border: 0;
+    background: #000000;
+}
+
+#meteoblue-iframe {
+    width: 820px;
+    height: 567px;
+    display: block;
+    border: 0;
+    background: #ffffff;
+}
+    </style>
 </head>
 
 <body>
@@ -36,131 +359,402 @@
                 <div class="fixture-topbar">
                     <div>
                         <div class="fixture-title">Mundial 2026</div>
-                        <div class="fixture-subtitle">Partidos · Fase de grupos · Fecha 1</div>
+                        <div class="fixture-subtitle">Fase de grupos · Fecha 1</div>
                     </div>
-                    <div class="live-pill">Calendario</div>
+                    <div class="fixture-counter">24 partidos</div>
                 </div>
 
                 <div class="fixture-tabs">
                     <span class="fixture-tab active">Partidos</span>
-                    <span class="fixture-tab">Resultados</span>
-                    <span class="fixture-tab">Grupos</span>
+                    <span class="fixture-tab">Fecha 1</span>
+                    <span class="fixture-tab">Grupos A-L</span>
                 </div>
 
                 <div class="fixture-scroll" id="fixture-scroll">
-                    <div class="fixture-group">
+
+                    <section class="fixture-group">
                         <div class="fixture-group-header">
                             <span>Grupo A · Fecha 1</span>
                             <strong>11/06/2026</strong>
                         </div>
-
+                        
                         <div class="game-card">
-                            <div class="team home"><span>México</span></div>
-                            <div class="time-box">15:00</div>
-                            <div class="team away"><span>Sudáfrica</span></div>
+                            <div class="team team-home">
+                                <span>México</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v15/Competitors/5106" alt="México">
+                            </div>
+                            <div class="match-time">15:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/5103" alt="Sudáfrica">
+                                <span>Sudáfrica</span>
+                            </div>
                         </div>
-
                         <div class="game-card">
-                            <div class="team home"><span>Corea del Sur</span></div>
-                            <div class="time-box">22:00</div>
-                            <div class="team away"><span>Rep. Checa</span></div>
+                            <div class="team team-home">
+                                <span>Corea del Sur</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2383" alt="Corea del Sur">
+                            </div>
+                            <div class="match-time">22:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5040" alt="Republica Checa">
+                                <span>Republica Checa</span>
+                            </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="fixture-group">
+                    <section class="fixture-group">
                         <div class="fixture-group-header">
                             <span>Grupo B · Fecha 1</span>
                             <strong>12/06/2026</strong>
                         </div>
-
+                        
                         <div class="game-card">
-                            <div class="team home"><span>Canadá</span></div>
-                            <div class="time-box">15:00</div>
-                            <div class="team away"><span>Bosnia Herz.</span></div>
+                            <div class="team team-home">
+                                <span>Canadá</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2388" alt="Canadá">
+                            </div>
+                            <div class="match-time">15:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v4/Competitors/5048" alt="Bosnia Herzegovina">
+                                <span>Bosnia Herzegovina</span>
+                            </div>
                         </div>
+                    </section>
 
-                        <div class="game-card">
-                            <div class="team home"><span>Qatar</span></div>
-                            <div class="time-box">15:00</div>
-                            <div class="team away"><span>Suiza</span></div>
-                        </div>
-                    </div>
-
-                    <div class="fixture-group">
+                    <section class="fixture-group">
                         <div class="fixture-group-header">
                             <span>Grupo D · Fecha 1</span>
                             <strong>12/06/2026</strong>
                         </div>
-
+                        
                         <div class="game-card">
-                            <div class="team home"><span>Estados Unidos</span></div>
-                            <div class="time-box">21:00</div>
-                            <div class="team away"><span>Paraguay</span></div>
+                            <div class="team team-home">
+                                <span>Estados Unidos</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2389" alt="Estados Unidos">
+                            </div>
+                            <div class="match-time">21:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v13/Competitors/5070" alt="Paraguay">
+                                <span>Paraguay</span>
+                            </div>
                         </div>
+                    </section>
 
+                    <section class="fixture-group">
+                        <div class="fixture-group-header">
+                            <span>Grupo B · Fecha 1</span>
+                            <strong>13/06/2026</strong>
+                        </div>
+                        
                         <div class="game-card">
-                            <div class="team home"><span>Australia</span></div>
-                            <div class="time-box">00:00</div>
-                            <div class="team away"><span>Turquía</span></div>
+                            <div class="team team-home">
+                                <span>Qatar</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5079" alt="Qatar">
+                            </div>
+                            <div class="match-time">15:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/5032" alt="Suiza">
+                                <span>Suiza</span>
+                            </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="fixture-group">
+                    <section class="fixture-group">
                         <div class="fixture-group-header">
                             <span>Grupo C · Fecha 1</span>
                             <strong>13/06/2026</strong>
                         </div>
-
+                        
                         <div class="game-card">
-                            <div class="team home"><span>Brasil</span></div>
-                            <div class="time-box">18:00</div>
-                            <div class="team away"><span>Marruecos</span></div>
+                            <div class="team team-home">
+                                <span>Brasil</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v13/Competitors/2379" alt="Brasil">
+                            </div>
+                            <div class="match-time">18:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5093" alt="Marruecos">
+                                <span>Marruecos</span>
+                            </div>
                         </div>
-
                         <div class="game-card">
-                            <div class="team home"><span>Haití</span></div>
-                            <div class="time-box">21:00</div>
-                            <div class="team away"><span>Escocia</span></div>
+                            <div class="team team-home">
+                                <span>Haití</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/5422" alt="Haití">
+                            </div>
+                            <div class="match-time">21:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5069" alt="Escocia">
+                                <span>Escocia</span>
+                            </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="fixture-group">
+                    <section class="fixture-group">
+                        <div class="fixture-group-header">
+                            <span>Grupo D · Fecha 1</span>
+                            <strong>14/06/2026</strong>
+                        </div>
+                        
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Australia</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2380" alt="Australia">
+                            </div>
+                            <div class="match-time">0:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5047" alt="Turquía">
+                                <span>Turquía</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="fixture-group">
                         <div class="fixture-group-header">
                             <span>Grupo E · Fecha 1</span>
                             <strong>14/06/2026</strong>
                         </div>
-
+                        
                         <div class="game-card">
-                            <div class="team home"><span>Alemania</span></div>
-                            <div class="time-box">13:00</div>
-                            <div class="team away"><span>Curazao</span></div>
+                            <div class="team team-home">
+                                <span>Alemania</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2372" alt="Alemania">
+                            </div>
+                            <div class="match-time">13:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/24397" alt="Curazao">
+                                <span>Curazao</span>
+                            </div>
                         </div>
-
                         <div class="game-card">
-                            <div class="team home"><span>Costa de Marfil</span></div>
-                            <div class="time-box">19:00</div>
-                            <div class="team away"><span>Ecuador</span></div>
+                            <div class="team team-home">
+                                <span>Costa de Marfil</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2385" alt="Costa de Marfil">
+                            </div>
+                            <div class="match-time">19:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v14/Competitors/5075" alt="Ecuador">
+                                <span>Ecuador</span>
+                            </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="fixture-group">
+                    <section class="fixture-group">
                         <div class="fixture-group-header">
                             <span>Grupo F · Fecha 1</span>
                             <strong>14/06/2026</strong>
                         </div>
-
+                        
                         <div class="game-card">
-                            <div class="team home"><span>Países Bajos</span></div>
-                            <div class="time-box">16:00</div>
-                            <div class="team away"><span>Japón</span></div>
+                            <div class="team team-home">
+                                <span>Países Bajos</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2377" alt="Países Bajos">
+                            </div>
+                            <div class="match-time">16:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2382" alt="Japón">
+                                <span>Japón</span>
+                            </div>
                         </div>
-
                         <div class="game-card">
-                            <div class="team home"><span>Suecia</span></div>
-                            <div class="time-box">22:00</div>
-                            <div class="team away"><span>Túnez</span></div>
+                            <div class="team team-home">
+                                <span>Suecia</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2371" alt="Suecia">
+                            </div>
+                            <div class="match-time">22:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/5104" alt="Túnez">
+                                <span>Túnez</span>
+                            </div>
                         </div>
-                    </div>
+                    </section>
+
+                    <section class="fixture-group">
+                        <div class="fixture-group-header">
+                            <span>Grupo H · Fecha 1</span>
+                            <strong>15/06/2026</strong>
+                        </div>
+                        
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>España</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5050" alt="España">
+                            </div>
+                            <div class="match-time">12:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5411" alt="Cabo Verde">
+                                <span>Cabo Verde</span>
+                            </div>
+                        </div>
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Arabia Saudita</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5087" alt="Arabia Saudita">
+                            </div>
+                            <div class="match-time">18:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v17/Competitors/5073" alt="Uruguay">
+                                <span>Uruguay</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="fixture-group">
+                        <div class="fixture-group-header">
+                            <span>Grupo G · Fecha 1</span>
+                            <strong>15/06/2026</strong>
+                        </div>
+                        
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Bélgica</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2373" alt="Bélgica">
+                            </div>
+                            <div class="match-time">15:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v4/Competitors/5100" alt="Egipto">
+                                <span>Egipto</span>
+                            </div>
+                        </div>
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Irán</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5091" alt="Irán">
+                            </div>
+                            <div class="match-time">21:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2391" alt="Nueva Zelanda">
+                                <span>Nueva Zelanda</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="fixture-group">
+                        <div class="fixture-group-header">
+                            <span>Grupo I · Fecha 1</span>
+                            <strong>16/06/2026</strong>
+                        </div>
+                        
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Francia</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5061" alt="Francia">
+                            </div>
+                            <div class="match-time">15:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/5102" alt="Senegal">
+                                <span>Senegal</span>
+                            </div>
+                        </div>
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Irak</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5078" alt="Irak">
+                            </div>
+                            <div class="match-time">18:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/2376" alt="Noruega">
+                                <span>Noruega</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="fixture-group">
+                        <div class="fixture-group-header">
+                            <span>Grupo J · Fecha 1</span>
+                            <strong>16/06/2026</strong>
+                        </div>
+                        
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Argentina</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v16/Competitors/2378" alt="Argentina">
+                            </div>
+                            <div class="match-time">21:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/5109" alt="Argelia">
+                                <span>Argelia</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="fixture-group">
+                        <div class="fixture-group-header">
+                            <span>Grupo J · Fecha 1</span>
+                            <strong>17/06/2026</strong>
+                        </div>
+                        
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Austria</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v6/Competitors/5059" alt="Austria">
+                            </div>
+                            <div class="match-time">0:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5083" alt="Jordania">
+                                <span>Jordania</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="fixture-group">
+                        <div class="fixture-group-header">
+                            <span>Grupo K · Fecha 1</span>
+                            <strong>17/06/2026</strong>
+                        </div>
+                        
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Portugal</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/5028" alt="Portugal">
+                            </div>
+                            <div class="match-time">13:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/14650" alt="RD Congo">
+                                <span>RD Congo</span>
+                            </div>
+                        </div>
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Uzbekistán</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5085" alt="Uzbekistán">
+                            </div>
+                            <div class="match-time">22:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v14/Competitors/5071" alt="Colombia">
+                                <span>Colombia</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="fixture-group">
+                        <div class="fixture-group-header">
+                            <span>Grupo L · Fecha 1</span>
+                            <strong>17/06/2026</strong>
+                        </div>
+                        
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Inglaterra</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v3/Competitors/5054" alt="Inglaterra">
+                            </div>
+                            <div class="match-time">16:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v5/Competitors/5055" alt="Croacia">
+                                <span>Croacia</span>
+                            </div>
+                        </div>
+                        <div class="game-card">
+                            <div class="team team-home">
+                                <span>Ghana</span>
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v2/Competitors/5094" alt="Ghana">
+                            </div>
+                            <div class="match-time">19:00</div>
+                            <div class="team team-away">
+                                <img src="https://imagecache.365scores.com/image/upload/f_png,w_34,h_34,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v13/Competitors/5414" alt="Panamá">
+                                <span>Panamá</span>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
         </section>
@@ -169,7 +763,7 @@
         <div class="right-iframes">
             <iframe
                 id="video-iframe"
-                src="https://www.youtube.com/embed/IEVv3T4ujj0?si=ltxYdesg0oi9mbHy" 
+                src="https://www.youtube.com/embed/IEVv3T4ujj0?si=ltxYdesg0oi9mbHy"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen
@@ -219,7 +813,7 @@
                     const filteredData = data.slice(-16);
 
                     const labels = filteredData.map(item => {
-                        const start = moment.utc(item.time_tag).tz('America/Santiago');
+                        const start = moment.utc(item.time_tag).tz("America/Santiago");
                         const end = start.clone().add(3, 'hours');
                         return `${start.format('DD/MM HH:mm')} a ${end.format('HH:mm')}`;
                     });
@@ -296,8 +890,7 @@
                         }
                     });
                 })
-                .fail(function(jqxhr, textStatus, error) {
-                    console.error('Error cargando JSON NOAA:', textStatus, error);
+                .fail(function() {
                     document.getElementById('kpindex-error').style.display = 'block';
                 });
         }
@@ -318,32 +911,63 @@
             setTimeout(function() {
                 recargarIframe('meteoblue-iframe');
             }, 30000);
+
+            // YouTube no se recarga.
         }
 
-        function autoScrollFixtures() {
-            const box = document.getElementById('fixture-scroll');
-            if (!box) return;
+        function iniciarScrollPartidos() {
+            const scroller = document.getElementById('fixture-scroll');
+            if (!scroller) return;
 
             let direction = 1;
+            const step = 240;
+
             setInterval(function() {
-                if (box.scrollHeight <= box.clientHeight) return;
+                const maxScroll = scroller.scrollHeight - scroller.clientHeight;
 
-                box.scrollTop += direction;
+                if (maxScroll <= 0) return;
 
-                if (box.scrollTop + box.clientHeight >= box.scrollHeight - 2) {
+                if (scroller.scrollTop >= maxScroll - 10) {
                     direction = -1;
                 }
 
-                if (box.scrollTop <= 0) {
+                if (scroller.scrollTop <= 10) {
                     direction = 1;
                 }
-            }, 80);
+
+                scroller.scrollBy({
+                    top: direction * step,
+                    behavior: 'smooth'
+                });
+            }, 60000);
         }
 
-        loadKpChart();
-        autoScrollFixtures();
 
-        const tiempoActualizacionGeneral = 10800000;
+        function activarSonidoYouTube() {
+            const iframe = document.getElementById('video-iframe');
+            if (!iframe || !iframe.contentWindow) return;
+
+            const comandos = [
+                '{"event":"command","func":"unMute","args":[]}',
+                '{"event":"command","func":"setVolume","args":[100]}',
+                '{"event":"command","func":"playVideo","args":[]}'
+            ];
+
+            comandos.forEach(function(comando) {
+                iframe.contentWindow.postMessage(comando, '*');
+            });
+        }
+
+        window.addEventListener('load', function() {
+            setTimeout(activarSonidoYouTube, 3000);
+            setTimeout(activarSonidoYouTube, 10000);
+            setTimeout(activarSonidoYouTube, 30000);
+        });
+
+        loadKpChart();
+        iniciarScrollPartidos();
+
+        const tiempoActualizacionGeneral = 10800000; // 3 horas
         setInterval(actualizarPanelCadaTresHoras, tiempoActualizacionGeneral);
     </script>
 </body>
