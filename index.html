@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meteorología</title>
+    <title>Panel Meteorológico</title>
     <link rel="stylesheet" href="styles.css">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -12,148 +12,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
 
     <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .panel {
+            width: 1920px;
+            height: 1030px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 0;
+            position: relative;
+            background: #ffffff;
+        }
+
+        .logo-dga {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            max-width: 120px;
+            z-index: 20;
+        }
+
         /* ==============================
-           TABLA MUNDIAL DESDE PROXY PHP
+           COLUMNA IZQUIERDA: WINDY + KP
         ============================== */
 
-        #mundial-api-widget {
+        .left-column {
+            width: 550px;
+            height: 1030px;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        #windy-iframe {
             width: 550px;
             height: 515px;
-            box-sizing: border-box;
-            overflow: hidden;
-            background: #ffffff;
             border: 0;
-            position: relative;
-            font-family: Arial, sans-serif;
-        }
-
-        #mundial-api-title {
-            height: 42px;
-            line-height: 42px;
-            box-sizing: border-box;
-            padding: 0 12px;
-            background: #111111;
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        #mundial-api-content {
-            width: 550px;
-            height: 473px;
-            box-sizing: border-box;
-            padding: 12px;
-            overflow: hidden;
-            background: #ffffff;
-        }
-
-        .mundial-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            font-size: 12px;
-            color: #555555;
-        }
-
-        .mundial-meta span {
             display: block;
         }
-
-        .mundial-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            table-layout: fixed;
-        }
-
-        .mundial-table thead {
-            background: #eeeeee;
-        }
-
-        .mundial-table th,
-        .mundial-table td {
-            padding: 7px 4px;
-            border-bottom: 1px solid #dddddd;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .mundial-table th {
-            font-size: 11px;
-            color: #333333;
-            font-weight: bold;
-        }
-
-        .mundial-table td {
-            color: #111111;
-        }
-
-        .mundial-table .col-pos {
-            width: 28px;
-            font-weight: bold;
-        }
-
-        .mundial-table .col-team {
-            width: 210px;
-            text-align: left;
-        }
-
-        .mundial-team {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            min-width: 0;
-        }
-
-        .mundial-team img {
-            width: 22px;
-            height: 22px;
-            object-fit: contain;
-            flex-shrink: 0;
-        }
-
-        .mundial-team-name {
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            font-weight: bold;
-        }
-
-        .mundial-points {
-            font-weight: bold;
-            background: #f5f5f5;
-            border-radius: 4px;
-        }
-
-        #mundial-api-error {
-            display: none;
-            height: 100%;
-            box-sizing: border-box;
-            padding: 20px;
-            font-size: 15px;
-            line-height: 22px;
-            color: #b00020;
-            background: #fff5f5;
-            border: 1px solid #f0cccc;
-        }
-
-        #mundial-api-loading {
-            display: none;
-            padding: 20px;
-            font-size: 15px;
-            text-align: center;
-            color: #555555;
-        }
-
-        /* ==============================
-           GRÁFICO KP
-        ============================== */
 
         #kpindex-frame {
             width: 550px;
@@ -182,6 +85,75 @@
             color: #b00020;
             background: #fff;
         }
+
+        /* ==============================
+           COLUMNA CENTRAL: CUADRO MUNDIAL
+        ============================== */
+
+        .worldcup-column {
+            width: 550px;
+            height: 1030px;
+            overflow: hidden;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .worldcup-title {
+            height: 42px;
+            line-height: 42px;
+            box-sizing: border-box;
+            padding: 0 12px;
+            background: #111111;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .worldcup-frame-container {
+            width: 550px;
+            height: 988px;
+            overflow: hidden;
+            position: relative;
+            background: #ffffff;
+        }
+
+        #worldcup-bracket-iframe {
+            width: 100%;
+            height: 988px;
+            border: 0;
+            background: #ffffff;
+            display: block;
+        }
+
+        /* ==============================
+           COLUMNA DERECHA: YOUTUBE + METEOBLUE
+        ============================== */
+
+        .right-iframes {
+            width: 820px;
+            height: 1030px;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        #video-iframe {
+            width: 820px;
+            height: 463px;
+            border: 0;
+            display: block;
+        }
+
+        #meteoblue-iframe {
+            width: 820px;
+            height: 567px;
+            border: 0;
+            display: block;
+        }
     </style>
 </head>
 
@@ -189,318 +161,61 @@
     <div class="panel">
         <img src="https://dga.cerofilas.gob.cl/logos/dga.jpg" alt="Logo DGA" class="logo-dga">
 
-        <!-- Iframe de Windy a la izquierda -->
-        <iframe
-            id="windy-iframe"
-            width="550"
-            height="1030"
-            src="https://embed.windy.com/embed2.html?lat=-40.246&lon=-72.026&detailLat=-36.440&detailLon=-70.6500&width=550&height=1030&zoom=5&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
-            frameborder="0">
-        </iframe>
+        <!-- COLUMNA IZQUIERDA: WINDY + KP -->
+        <div class="left-column">
+            <iframe
+                id="windy-iframe"
+                src="https://embed.windy.com/embed2.html?lat=-40.246&lon=-72.026&detailLat=-36.440&detailLon=-70.6500&width=550&height=515&zoom=5&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+                frameborder="0">
+            </iframe>
 
-        <div class="iframe-container">
-
-            <!-- Tabla de posiciones Mundial 2026 desde marca-proxy.php -->
-            <div id="mundial-api-widget">
-                <div id="mundial-api-title">Fase de grupos - Mundial 2026</div>
-
-                <div id="mundial-api-content">
-                    <div id="mundial-api-loading">Cargando tabla de posiciones...</div>
-
-                    <div id="mundial-api-error">
-                        No fue posible cargar la tabla de posiciones del Mundial.
-                        <br>
-                        Revisa que <strong>marca-proxy.php</strong> esté en la misma carpeta que este HTML.
-                    </div>
-
-                    <div id="mundial-api-table-container">
-                        <div class="mundial-meta">
-                            <span id="mundial-group-name">Grupo</span>
-                            <span id="mundial-last-update">Actualizando...</span>
-                        </div>
-
-                        <table class="mundial-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-pos">#</th>
-                                    <th class="col-team">Equipo</th>
-                                    <th>PTS</th>
-                                    <th>PJ</th>
-                                    <th>G</th>
-                                    <th>E</th>
-                                    <th>P</th>
-                                    <th>GF</th>
-                                    <th>GC</th>
-                                    <th>DG</th>
-                                </tr>
-                            </thead>
-                            <tbody id="mundial-table-body">
-                                <!-- Datos cargados por JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gráfico KP -->
             <div id="kpindex-frame">
                 <canvas id="planetary_k_index_chart"></canvas>
                 <div id="kpindex-error">No fue posible cargar el gráfico del índice Kp.</div>
             </div>
         </div>
 
-        <!-- Contenedor para los iframes de la derecha -->
-        <div class="right-iframes">
+        <!-- COLUMNA CENTRAL: CUADRO MUNDIAL 2026 -->
+        <div class="worldcup-column">
+            <div class="worldcup-title">
+                Mundial 2026 USA / Canadá / México - Fase Final
+            </div>
 
-            <!-- Iframe superior derecho: YouTube -->
+            <div class="worldcup-frame-container">
+                <iframe
+                    id="worldcup-bracket-iframe"
+                    src="https://www.365scores.com/es/football/league/fifa-world-cup-5930/brackets"
+                    title="Cuadro Mundial 2026"
+                    frameborder="0"
+                    scrolling="yes"
+                    loading="lazy">
+                </iframe>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: YOUTUBE + METEOBLUE -->
+        <div class="right-iframes">
             <iframe
                 id="video-iframe"
                 src="https://www.youtube.com/embed/IEVv3T4ujj0?si=ltxYdesg0oi9mbHy"
-                width="820"
-                height="463"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen
                 scrolling="no">
             </iframe>
 
-            <!-- Iframe inferior derecho: Meteoblue -->
             <iframe
                 id="meteoblue-iframe"
-                class="bottom-right-iframe"
                 src="https://www.meteoblue.com/es/tiempo/widget/daily/santiago-de-chile_chile_3871336?geoloc=fixed&days=7&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&precipunit=MILLIMETER&coloured=coloured&pictoicon=0&pictoicon=1&maxtemperature=0&maxtemperature=1&mintemperature=0&mintemperature=1&windspeed=0&windspeed=1&windgust=0&winddirection=0&winddirection=1&uv=0&humidity=0&precipitation=0&precipitation=1&precipitationprobability=0&precipitationprobability=1&spot=0&spot=1&pressure=0&layout=light"
                 frameborder="0"
                 scrolling="NO"
                 allowtransparency="true"
-                sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
-                style="width: 820px; height: 560px">
+                sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox">
             </iframe>
         </div>
     </div>
 
     <script>
-        /* ==============================
-           TABLA MUNDIAL DESDE PROXY PHP
-        ============================== */
-
-        const mundialGrupos = [
-            { id: 1, nombre: "Grupo A" },
-            { id: 2, nombre: "Grupo B" },
-            { id: 3, nombre: "Grupo C" },
-            { id: 4, nombre: "Grupo D" },
-            { id: 5, nombre: "Grupo E" },
-            { id: 6, nombre: "Grupo F" },
-            { id: 7, nombre: "Grupo G" },
-            { id: 8, nombre: "Grupo H" },
-            { id: 9, nombre: "Grupo I" },
-            { id: 10, nombre: "Grupo J" },
-            { id: 11, nombre: "Grupo K" },
-            { id: 12, nombre: "Grupo L" }
-        ];
-
-        let mundialGrupoActual = 0;
-
-        // Tabla: cambiar de grupo cada 1 minuto.
-        const tiempoRotacionMundial = 60000;
-
-        // Windy, Meteoblue y KP: actualizar cada 3 horas.
-        const tiempoActualizacionGeneral = 10800000;
-
-        function getMundialApiUrl(groupId) {
-            // Debe estar en la misma carpeta que este HTML.
-            return `marca-proxy.php?group=${groupId}`;
-        }
-
-        function mostrarEstadoMundial(estado) {
-            const loading = document.getElementById('mundial-api-loading');
-            const error = document.getElementById('mundial-api-error');
-            const tableContainer = document.getElementById('mundial-api-table-container');
-
-            if (estado === 'loading') {
-                loading.style.display = 'block';
-                error.style.display = 'none';
-                tableContainer.style.display = 'none';
-            }
-
-            if (estado === 'error') {
-                loading.style.display = 'none';
-                error.style.display = 'block';
-                tableContainer.style.display = 'none';
-            }
-
-            if (estado === 'ok') {
-                loading.style.display = 'none';
-                error.style.display = 'none';
-                tableContainer.style.display = 'block';
-            }
-        }
-
-        function formatearFechaChile(fechaIso) {
-            if (!fechaIso) return '';
-
-            try {
-                return moment.utc(fechaIso)
-                    .tz("America/Santiago")
-                    .format("DD/MM/YYYY HH:mm");
-            } catch (error) {
-                return '';
-            }
-        }
-
-        async function cargarTablaMundial() {
-            const grupo = mundialGrupos[mundialGrupoActual];
-            const url = getMundialApiUrl(grupo.id);
-
-            const title = document.getElementById('mundial-api-title');
-            const groupName = document.getElementById('mundial-group-name');
-            const lastUpdate = document.getElementById('mundial-last-update');
-            const tbody = document.getElementById('mundial-table-body');
-
-            title.textContent = `Fase de grupos - ${grupo.nombre}`;
-            groupName.textContent = grupo.nombre;
-
-            mostrarEstadoMundial('loading');
-
-            try {
-                const response = await fetch(url, {
-                    method: 'GET',
-                    cache: 'default'
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Error HTTP ${response.status}`);
-                }
-
-                const json = await response.json();
-
-                if (
-                    !json ||
-                    json.status !== 'success' ||
-                    !Array.isArray(json.data) ||
-                    json.data.length === 0 ||
-                    !Array.isArray(json.data[0].rank)
-                ) {
-                    throw new Error('Respuesta API no válida.');
-                }
-
-                const classification = json.data[0];
-                const head = classification.classificationHead || {};
-
-                const apiGroupName =
-                    head.group?.alternateNames?.esES ||
-                    head.group?.name ||
-                    grupo.nombre;
-
-                const phaseName =
-                    head.phase?.alternateNames?.esES ||
-                    head.phase?.name ||
-                    'Fase de grupos';
-
-                title.textContent = `${phaseName} - ${apiGroupName}`;
-                groupName.textContent = apiGroupName;
-
-                const updateText = formatearFechaChile(classification.lastUpdate);
-                lastUpdate.textContent = updateText ? `Act. ${updateText}` : '';
-
-                tbody.innerHTML = '';
-
-                classification.rank.forEach(team => {
-                    const standing = team.standing || {};
-
-                    const flag =
-                        team.images?.urlFlag?.[2] ||
-                        team.images?.urlFlag?.[1] ||
-                        team.images?.urlFlag?.[0] ||
-                        team.imageUrl ||
-                        '';
-
-                    const tr = document.createElement('tr');
-
-                    const tdPos = document.createElement('td');
-                    tdPos.className = 'col-pos';
-                    tdPos.textContent = standing.position || '-';
-
-                    const tdTeam = document.createElement('td');
-                    tdTeam.className = 'col-team';
-
-                    const teamDiv = document.createElement('div');
-                    teamDiv.className = 'mundial-team';
-
-                    if (flag) {
-                        const img = document.createElement('img');
-                        img.src = flag;
-                        img.alt = team.name || team.fullName || '';
-                        teamDiv.appendChild(img);
-                    }
-
-                    const teamName = document.createElement('span');
-                    teamName.className = 'mundial-team-name';
-                    teamName.textContent = team.name || team.fullName || '-';
-                    teamDiv.appendChild(teamName);
-
-                    tdTeam.appendChild(teamDiv);
-
-                    const tdPts = document.createElement('td');
-                    tdPts.className = 'mundial-points';
-                    tdPts.textContent = standing.points || '0';
-
-                    const tdPj = document.createElement('td');
-                    tdPj.textContent = standing.played || '0';
-
-                    const tdG = document.createElement('td');
-                    tdG.textContent = standing.won || '0';
-
-                    const tdE = document.createElement('td');
-                    tdE.textContent = standing.drawn || '0';
-
-                    const tdP = document.createElement('td');
-                    tdP.textContent = standing.lost || '0';
-
-                    const tdGf = document.createElement('td');
-                    tdGf.textContent = standing.for || '0';
-
-                    const tdGc = document.createElement('td');
-                    tdGc.textContent = standing.against || '0';
-
-                    const tdDg = document.createElement('td');
-                    tdDg.textContent = standing.difference || '0';
-
-                    tr.appendChild(tdPos);
-                    tr.appendChild(tdTeam);
-                    tr.appendChild(tdPts);
-                    tr.appendChild(tdPj);
-                    tr.appendChild(tdG);
-                    tr.appendChild(tdE);
-                    tr.appendChild(tdP);
-                    tr.appendChild(tdGf);
-                    tr.appendChild(tdGc);
-                    tr.appendChild(tdDg);
-
-                    tbody.appendChild(tr);
-                });
-
-                mostrarEstadoMundial('ok');
-
-            } catch (error) {
-                console.error('Error cargando tabla Mundial:', error);
-                mostrarEstadoMundial('error');
-            }
-        }
-
-        function rotarTablaMundial() {
-            mundialGrupoActual++;
-
-            if (mundialGrupoActual >= mundialGrupos.length) {
-                mundialGrupoActual = 0;
-            }
-
-            cargarTablaMundial();
-        }
-
-        /* ==============================
-           GRÁFICO KP
-        ============================== */
-
         let kpChart = null;
 
         function getKpColor(value) {
@@ -541,8 +256,6 @@
                     });
 
                     const values = filteredData.map(item => parseFloat(item.Kp));
-
-                    console.log('Datos KP filtrados:', filteredData);
 
                     const ctx = document.getElementById('planetary_k_index_chart').getContext('2d');
                     document.getElementById('kpindex-error').style.display = 'none';
@@ -620,10 +333,6 @@
                 });
         }
 
-        /* ==============================
-           ACTUALIZACIÓN DE IFRAMES
-        ============================== */
-
         function recargarIframe(id) {
             const iframe = document.getElementById(id);
 
@@ -635,33 +344,28 @@
         }
 
         function actualizarPanelCadaTresHoras() {
-            // KP se actualiza primero.
+            // Actualiza KP.
             loadKpChart();
 
-            // Windy y Meteoblue se recargan de forma diferida para no saturar el navegador.
+            // Recarga Windy 10 segundos después.
             setTimeout(function() {
                 recargarIframe('windy-iframe');
             }, 10000);
 
+            // Recarga Meteoblue 30 segundos después.
             setTimeout(function() {
                 recargarIframe('meteoblue-iframe');
             }, 30000);
+
+            // No se recarga YouTube.
+            // No se recarga 365Scores.
         }
-
-        /* ==============================
-           INICIO
-        ============================== */
-
-        // Cargar tabla del Mundial al iniciar.
-        cargarTablaMundial();
-
-        // Cambiar de grupo cada 1 minuto.
-        setInterval(rotarTablaMundial, tiempoRotacionMundial);
 
         // Cargar gráfico KP al iniciar.
         loadKpChart();
 
         // Actualizar Windy, Meteoblue y KP cada 3 horas.
+        const tiempoActualizacionGeneral = 10800000;
         setInterval(actualizarPanelCadaTresHoras, tiempoActualizacionGeneral);
     </script>
 </body>
