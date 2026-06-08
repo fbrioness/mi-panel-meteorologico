@@ -12,6 +12,53 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
 
     <style>
+
+        #marca-grupos-widget {
+            width: 550px;
+            height: 515px;
+            box-sizing: border-box;
+            overflow: hidden;
+            background: #ffffff;
+            border: 0;
+            position: relative;
+            font-family: Arial, sans-serif;
+        }
+
+        #marca-grupos-title {
+            height: 42px;
+            line-height: 42px;
+            box-sizing: border-box;
+            padding: 0 12px;
+            background: #111111;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        #marca-grupos-viewport {
+            position: relative;
+            width: 550px;
+            height: 473px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        #marca-grupos-frame {
+            position: absolute;
+            top: -185px;
+            left: 0;
+            width: 900px;
+            height: 1300px;
+            border: 0;
+            transform: scale(0.61);
+            transform-origin: top left;
+            background: #ffffff;
+        }
+
         #kpindex-frame {
             width: 550px;
             height: 515px;
@@ -49,7 +96,19 @@
         <iframe id="windy-iframe" width="550" height="1030" src="https://embed.windy.com/embed2.html?lat=-40.246&lon=-72.026&detailLat=-36.440&detailLon=-70.6500&width=550&height=1030&zoom=5&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" frameborder="0"></iframe>
 
         <div class="iframe-container">
-            <iframe id="instagram-1" src="https://www.instagram.com/mop_cl/embed" width="550" height="515" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
+            <!-- Reemplazo de Instagram por rotador automático de grupos Mundial 2026 -->
+            <div id="marca-grupos-widget">
+                <div id="marca-grupos-title">Fase de grupos - Mundial 2026</div>
+                <div id="marca-grupos-viewport">
+                    <iframe
+                        id="marca-grupos-frame"
+                        title="Fase de grupos Mundial 2026 - MARCA"
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        scrolling="no">
+                    </iframe>
+                </div>
+            </div>
 
             <!-- Reemplazo del iframe instagram-2 por el gráfico KP -->
             <div id="kpindex-frame">
@@ -70,6 +129,47 @@
 
     <script>
         let kpChart = null;
+
+        const marcaGrupos = [
+            { nombre: "Grupo A", slug: "grupo-a" },
+            { nombre: "Grupo B", slug: "grupo-b" },
+            { nombre: "Grupo C", slug: "grupo-c" },
+            { nombre: "Grupo D", slug: "grupo-d" },
+            { nombre: "Grupo E", slug: "grupo-e" },
+            { nombre: "Grupo F", slug: "grupo-f" },
+            { nombre: "Grupo G", slug: "grupo-g" },
+            { nombre: "Grupo H", slug: "grupo-h" },
+            { nombre: "Grupo I", slug: "grupo-i" },
+            { nombre: "Grupo J", slug: "grupo-j" },
+            { nombre: "Grupo K", slug: "grupo-k" },
+            { nombre: "Grupo L", slug: "grupo-l" }
+        ];
+
+        let marcaGrupoActual = 0;
+
+        function getMarcaGrupoUrl(grupo) {
+            return `https://www.marca.com/futbol/mundial/calendario/${grupo.slug}.html?intcmp=MENUMIGA&s_kw=fase-de-grupos`;
+        }
+
+        function cargarMarcaGrupo() {
+            const grupo = marcaGrupos[marcaGrupoActual];
+            const frame = document.getElementById('marca-grupos-frame');
+            const title = document.getElementById('marca-grupos-title');
+
+            title.textContent = `Fase de grupos - ${grupo.nombre}`;
+            frame.src = getMarcaGrupoUrl(grupo);
+        }
+
+        function rotarMarcaGrupo() {
+            marcaGrupoActual++;
+
+            if (marcaGrupoActual >= marcaGrupos.length) {
+                marcaGrupoActual = 0;
+            }
+
+            cargarMarcaGrupo();
+        }
+
 
         function getKpColor(value) {
             if (value >= 7) return '#C80000';
@@ -201,7 +301,9 @@
             }
         });
 
-        // Cargar gráfico al iniciar
+        // Cargar gráfico KP y rotador de grupos al iniciar
+        cargarMarcaGrupo();
+        setInterval(rotarMarcaGrupo, 10000);
         loadKpChart();
 
         // Tiempo de actualización en milisegundos
@@ -212,9 +314,9 @@
             const windyIframe = document.getElementById('windy-iframe');
             windyIframe.src = windyIframe.src;
 
-            // Actualizar iframe de Instagram
-            const instagram1Iframe = document.getElementById('instagram-1');
-            instagram1Iframe.src = instagram1Iframe.src;
+            // Actualizar iframe de fase de grupos MARCA
+            const marcaGruposIframe = document.getElementById('marca-grupos-frame');
+            marcaGruposIframe.src = marcaGruposIframe.src;
 
             // Actualizar gráfico KP
             loadKpChart();
