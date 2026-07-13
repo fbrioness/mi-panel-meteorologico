@@ -7,7 +7,7 @@
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Meteorológico</title>
-    <link rel="stylesheet" href="styles.css?v=20260608-iframe-01">
+    <link rel="stylesheet" href="styles.css?v=windy-left-01">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -47,7 +47,8 @@ html, body {
     z-index: 50;
 }
 
-.fixtures-frame {
+/* Columna izquierda: Windy */
+#windy-iframe {
     width: 550px;
     height: 1030px;
     border: 0;
@@ -126,17 +127,19 @@ html, body {
 }
 </style>
 </head>
+
 <body>
     <div class="panel">
-<iframe
-  id="fixtures-iframe"
-  class="fixtures-frame"
-  src="https://meteorpa.github.io/fixtures/?v=365-auto-04-final"
-  width="550"
-  height="1030"
-  frameborder="0"
-  scrolling="no">
-</iframe>
+        <img src="https://dga.cerofilas.gob.cl/logos/dga.jpg" alt="Logo DGA" class="logo-dga">
+
+        <!-- Iframe de Windy a la izquierda, reemplaza al iframe del Mundial -->
+        <iframe
+            id="windy-iframe"
+            width="550"
+            height="1030"
+            src="https://embed.windy.com/embed2.html?lat=-40.246&lon=-72.026&detailLat=-36.440&detailLon=-70.6500&width=550&height=1030&zoom=5&level=surface&overlay=satellite&product=satellite&menu=&message=true&marker=&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+            frameborder="0">
+        </iframe>
 
         <div class="iframe-container">
             <iframe
@@ -155,10 +158,18 @@ html, body {
             </div>
         </div>
 
-       <div class="right-iframes">
-<div class="right-iframes">
-            <iframe id="video-iframe" src="https://www.youtube.com/embed/rfh1neWAEfg?si=G2NTNxW-XeAIwuMD" width="820" height="463" allow="" fullscreen encrypted-media" allowfullscreen="" allowscriptaccess="always" scrolling="no"></iframe>
-</div>
+        <div class="right-iframes">
+            <iframe
+                id="video-iframe"
+                src="https://www.youtube.com/embed/sJWlqkxaXfM?si=-jB9FKIZY5FAyBAH"
+                width="820"
+                height="463"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                scrolling="no">
+            </iframe>
+
             <iframe
                 id="meteoblue-iframe"
                 class="bottom-right-iframe"
@@ -284,20 +295,23 @@ html, body {
             loadKpChart();
 
             setTimeout(function() {
-                recargarIframe('instagram-1');
+                recargarIframe('windy-iframe');
             }, 10000);
+
+            setTimeout(function() {
+                recargarIframe('instagram-1');
+            }, 20000);
 
             setTimeout(function() {
                 recargarIframe('meteoblue-iframe');
             }, 30000);
 
             // No recargar YouTube.
-            // No recargar fixtures.html.
         }
 
         loadKpChart();
 
-        const tiempoActualizacionGeneral = 10800000;
+        const tiempoActualizacionGeneral = 10800000; // 3 horas
         setInterval(actualizarPanelCadaTresHoras, tiempoActualizacionGeneral);
     </script>
 </body>
